@@ -1,9 +1,12 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>VetTech Care</title>
 
-@section('title', 'Nome da Página')
-
-@section('content')
-<section class="conteudo">
-    <h2>Página em construção</h2>
-</section>
-@endsection
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body>
+    @yield('content')
+</body>
+</html>
