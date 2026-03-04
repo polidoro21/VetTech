@@ -13,6 +13,18 @@ return new class extends Migration
     {
         Schema::create('animais', function (Blueprint $table) {
             $table->id();
+            $table->string('nome');
+            $table->string('especie');
+            $table->string('raca')->nullable();
+            $table->date('data_nascimento')->nullable();
+            $table->string('cor')->nullable();
+            $table->string('porte');
+
+            // Chave estrangeira
+            $table->foreignId('id_usuario')
+                ->constrained('users')
+                ->onDelete('cascade');
+
             $table->timestamps();
         });
     }
