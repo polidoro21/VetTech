@@ -17,38 +17,27 @@
                 <tr>
                     <th>Nome</th>
                     <th>Espécie</th>
-                    <th>Raça</th>
+                    <th>Idade</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
-
-                @foreach($animais as $animal)
+                @foreach($pets as $pet)
                 <tr>
-                    <td>{{ $animal->nome }}</td>
-                    <td>{{ $animal->especie }}</td>
-                    <td>{{ $animal->raca }}</td>
+                    <td>{{ $pet->nome }}</td>
+                    <td>{{ $pet->especie }}</td>
+                    <td>{{ $pet->idade }}</td>
                     <td>
-                        <a href="{{ route('animais.edit', $animal->id) }}"
-                           class="btn btn-warning btn-sm">
-                            Editar
-                        </a>
+                        {{-- <a href="{{ route('animais.edit', $pet->id) }}" class="btn btn-warning btn-sm">Editar</a>
 
-                        <form action="{{ route('animais.destroy', $animal->id) }}"
-                                method="POST"
-                                class="d-inline">
+                        <form action="{{ route('animais.destroy', $pet->id) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit"
-                                    class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Tem certeza que deseja excluir?')">
-                                Excluir
-                            </button>
-                        </form>
+                            <button class="btn btn-danger btn-sm">Excluir</button>
+                        </form> --}}
                     </td>
                 </tr>
                 @endforeach
-
             </tbody>
         </table>
 

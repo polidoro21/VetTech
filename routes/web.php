@@ -29,30 +29,15 @@ Route::view('/contato', 'contato')->name('contato');
 // --------------------
 // Animais
 // --------------------
-
-// Criar
 Route::get('/novo-pet', [AnimalController::class, 'create'])
     ->name('animais.create');
 
-// Listar
 Route::get('/meus-animais', [AnimalController::class, 'index'])
     ->name('animais.index');
 
-// Salvar
+// Salva o animal
 Route::post('/novo-pet', [AnimalController::class, 'store'])
     ->name('animais.store');
-
-// Editar
-Route::get('/animais/{id}/editar', [AnimalController::class, 'edit'])
-    ->name('animais.edit');
-
-// Atualizar
-Route::put('/animais/{id}', [AnimalController::class, 'update'])
-    ->name('animais.update');
-
-// Excluir
-Route::delete('/animais/{id}', [AnimalController::class, 'destroy'])
-    ->name('animais.destroy');
 
 // --------------------
 // Atendimentos
