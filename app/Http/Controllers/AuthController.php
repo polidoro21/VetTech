@@ -1,31 +1,61 @@
-// Faz o login do usuário
-public function login(Request $request)
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
+class AuthController extends Controller
 {
-    // Validação dos campos
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required'
-    ]);
-
-    // Busca usuário pelo email
-    $user = User::where('email', $request->email)->first();
-
-    // Verifica se o usuário existe e se a senha confere
-    if ($user && Hash::check($request->password, $user->password)) {
-        // Autentica o usuário
-        auth()->login($user);
-
-        // Redireciona para a página inicial ou dashboard
-        return redirect()->route('home')->with('success', 'Login realizado com sucesso!');
+    public function showLogin()
+    {
+        return view('login');
     }
 
-    // Se falhar, volta para o login com mensagem de erro
-    return redirect()->back()->withErrors(['email' => 'Credenciais inválidas.'])->withInput();
-}
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
 
- // Faz logout do usuário
-public function logout()
-{
-    auth()->logout();
-    return redirect()->route('login')->with('success', 'Você saiu da sessão!');
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user && Hash::check($request->password, $user->password)) {
+            auth()->login($user);
+            return redirect()->route('home');
+        }
+
+        return back()->withErrors(['email' => 'Credenciais inválidas'])->withInput();
+    }
+
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6'
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password)
+        ]);
+
+        return redirect()->route('login')
+            ->with('success', 'Cadastro realizado!');
+    }
+
+    public function logout()
+    {
+        auth()->logout();
+        return redirect()->route('login');
+    }
 }

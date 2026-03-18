@@ -9,7 +9,19 @@
         o atendimento veterinário, tornando-o mais rápido, eficiente e humanizado.
     </p>
 
-    <a href="/cadastro" class="btn">Cadastrar um Animal</a>
+
+    @auth
+        <p>Bem-vinda, {{ auth()->user()->name }}!</p>
+
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="btn">Sair</button>
+        </form>
+    @endauth
+
+    <br><br>
+
+    <a href="/novo-pet" class="btn">Cadastrar um Animal</a>
 </main>
 
 @endsection

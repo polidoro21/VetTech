@@ -17,10 +17,22 @@
 </header>
 
 <nav>
-    <a href="/">Início</a>
-    <a href="/cadastro">Cadastro</a>
-    <a href="/atendimentos">Atendimentos</a>
-    <a href="/contato">Contato</a>
+    <a href="{{ route('home') }}">Início</a>
+    <a href="{{ route('atendimentos.index') }}">Atendimentos</a>
+    <a href="{{ route('contato') }}">Contato</a>
+
+    @auth
+        <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+            @csrf
+            <button style="background:red;color:white;border:none;padding:5px 10px;border-radius:5px;">
+                Sair
+            </button>
+        </form>
+    @endauth
+
+    @guest
+        <a href="{{ route('login') }}">Login</a>
+    @endguest
 </nav>
 
 <main>

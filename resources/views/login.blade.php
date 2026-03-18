@@ -16,7 +16,7 @@
     <button type="submit" class="btn btn-primary w-100">Entrar</button>
 </form>
 <div class="mt-3 text-center">
-    <a href="{{ route('register') }}">Não tem conta? Cadastre-se</a>
+    <a href="{{ route('cadastro') }}">Não tem conta? Cadastre-se</a>
 </div>
 
 <form action="{{ route('logout') }}" method="POST">
