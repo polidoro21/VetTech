@@ -20,19 +20,19 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
-        $user = User::where('email', $request->email)->first();
-
-        if ($user && Hash::check($request->password, $user->password)) {
-            auth()->login($user);
+        if (auth()->attempt($credentials)) {
+            $request->session()->regenerate();
             return redirect()->route('home');
         }
 
-        return back()->withErrors(['email' => 'Credenciais inválidas'])->withInput();
+        return back()->withErrors([
+            'email' => 'Credenciais inválidas.',
+        ])->onlyInput('email');
     }
 
     public function register(Request $request)
@@ -53,9 +53,13 @@ class AuthController extends Controller
             ->with('success', 'Cadastro realizado!');
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         auth()->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect()->route('login');
     }
 }
