@@ -7,19 +7,48 @@
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Seu CSS (CORRETO no Laravel) -->
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
     <style>
         body {
             min-height: 100vh;
-            background-color: #f8f9fa;
+            background-color: #f4f6f9;
         }
 
         .sidebar {
             min-height: 100vh;
+            background: linear-gradient(180deg, #1a1a1a, #343a40);
+        }
+
+        .sidebar h4 {
+            font-weight: bold;
+        }
+
+        .nav-link {
+            transition: 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: #495057;
+            border-radius: 5px;
         }
 
         .card-hover:hover {
             transform: scale(1.02);
             transition: 0.2s;
+        }
+
+        main {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+    </style>
+    <style>
+        body {
+            background-color: blue !important;
         }
     </style>
 </head>
@@ -29,35 +58,37 @@
     <div class="row">
 
         <!-- Sidebar -->
-        <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-            <div class="position-sticky pt-3 text-white">
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse text-white">
+            <div class="position-sticky pt-3">
                 <h4 class="text-center">🐾 VetTech</h4>
                 <hr class="text-secondary">
 
-                <ul class="nav flex-column">
-                    <li class="nav-item">
+                <ul class="nav flex-column px-2">
+
+                    <li class="nav-item mb-2">
                         <a class="nav-link text-white" href="{{ route('home') }}">
-                            Dashboard
+                            🏠 Dashboard
                         </a>
                     </li>
 
-                    <li class="nav-item">
+                    <li class="nav-item mb-2">
                         <a class="nav-link text-white" href="{{ route('animais.index') }}">
-                            Pets
+                            🐶 Pets
                         </a>
                     </li>
 
-                    <li class="nav-item">
+                    <li class="nav-item mb-2">
                         <a class="nav-link text-white" href="#">
-                            Atendimentos
+                            📋 Atendimentos
                         </a>
                     </li>
 
-                    <li class="nav-item">
+                    <li class="nav-item mt-3">
                         <a class="nav-link text-danger" href="#">
-                            Sair
+                            🚪 Sair
                         </a>
                     </li>
+
                 </ul>
             </div>
         </nav>
@@ -70,7 +101,9 @@
                 <h2>@yield('page-title')</h2>
 
                 <div>
-                    <span class="me-3">Bem-vindo, {{ Auth::user()->name ?? 'Usuário' }}</span>
+                    <span class="me-3">
+                        👤 Bem-vindo, {{ Auth::user()->name ?? 'Usuário' }}
+                    </span>
                 </div>
             </div>
 
@@ -81,7 +114,7 @@
                 </div>
             @endif
 
-            <!-- Conteúdo das páginas -->
+            <!-- Conteúdo -->
             @yield('content')
 
         </main>
@@ -89,6 +122,8 @@
     </div>
 </div>
 
+<!-- JS Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

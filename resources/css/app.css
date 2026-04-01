@@ -12,6 +12,25 @@ body {
     color: #333;
 }
 
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* efeito geral */
+.card {
+    border-radius: 10px;
+}
+
+/* botão padrão */
+.btn-primary {
+    background-color: #198754;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #157347;
+}
+
 /* ===== Hero com imagem (ALTURA REDUZIDA) ===== */
 header {
     background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
@@ -125,7 +144,6 @@ footer {
         transform: translateY(0);
     }
 }
-
 @keyframes fadeUp {
     from {
         opacity: 0;

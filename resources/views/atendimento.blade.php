@@ -1,12 +1,22 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>VetTech Care</title>
+@extends('layouts.app')
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body>
-    @yield('content')
-</body>
-</html>
+@section('content')
+
+<h2>Cadastrar Atendimento</h2>
+
+<form method="POST" action="{{ route('atendimentos.store') }}">
+    @csrf
+
+    <label>Nome do Animal:</label><br>
+    <input type="text" name="animal" required><br><br>
+
+    <label>Descrição:</label><br>
+    <textarea name="descricao" required></textarea><br><br>
+
+    <label>Data:</label><br>
+    <input type="date" name="data" required><br><br>
+
+    <button type="submit">Salvar Atendimento</button>
+</form>
+
+@endsection

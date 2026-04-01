@@ -40,7 +40,7 @@
 </main>
 
 <footer>
-    © 2025 VetTech Care | Desenvolvido por Lorrayne França
+    © 2025 VetTech Care | Desenvolvido por Lorrayne ,Roger e Deyse
 </footer>
 
 </body>

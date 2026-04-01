@@ -12,6 +12,10 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::get('/pagamento', function () {
+    return view('pagamento');
+})->name('pagamento');
+
 // --------------------
 // Autenticação
 // --------------------
@@ -19,7 +23,7 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Cadastro (AGORA CERTO)
+// Cadastro
 Route::get('/cadastro', [AuthController::class, 'showRegister'])->name('cadastro');
 Route::post('/cadastro', [AuthController::class, 'register'])->name('cadastro.post');
 
@@ -37,7 +41,14 @@ Route::post('/novo-pet', [AnimalController::class, 'store'])->name('animais.stor
 Route::get('/meus-animais', [AnimalController::class, 'index'])->name('animais.index');
 
 // --------------------
-// Atendimentos
+// Atendimentos (CORRIGIDO)
 // --------------------
-Route::get('/atendimentos', [AtendimentoController::class, 'create'])->name('atendimentos.index');
+
+// Listar atendimentos
+Route::get('/atendimentos', [AtendimentoController::class, 'index'])->name('atendimentos.index');
+
+// Formulário de criação
+Route::get('/atendimentos/create', [AtendimentoController::class, 'create'])->name('atendimentos.create');
+
+// Salvar atendimento
 Route::post('/atendimentos', [AtendimentoController::class, 'store'])->name('atendimentos.store');
