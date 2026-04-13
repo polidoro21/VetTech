@@ -6,11 +6,21 @@ use App\Http\Controllers\AtendimentoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
 
+use App\Http\Controllers\ClinicaController;
+use App\Http\Controllers\TelemedicinaController;
+
+Route::get('/clinicas', [ClinicaController::class, 'index'])->name('clinicas.buscar');
+Route::get('/telemedicina', [TelemedicinaController::class, 'index'])->name('telemedicina.index');
+
 // --------------------
 // Página inicial
 // --------------------
-Route::get('/', function () {
+Route::get('/painel', function () {
     return view('home');
+})->name('painel');
+
+Route::get('/', function (){
+    return view('site');
 })->name('home');
 
 Route::get('/pagamento', function () {

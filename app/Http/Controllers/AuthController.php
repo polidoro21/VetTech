@@ -42,7 +42,7 @@ class AuthController extends Controller
             // salva na sessão
             session(['usuario' => $user]);
 
-            return redirect()->route('home');
+            return redirect()->route('painel');
         }
 
         return back()->withErrors([
