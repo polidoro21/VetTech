@@ -41,4 +41,19 @@ class AnimalController extends Controller
         return redirect()->route('animais.index')
             ->with('success', 'Pet cadastrado com sucesso!');
     }
+
+    public function edit($id)
+{
+    $animal = Animal::findOrFail($id);
+    return view('animals.edit', compact('animal'));
+}
+
+public function update(Request $request, $id)
+{
+    $animal = Animal::findOrFail($id);
+
+    $animal->update($request->all());
+
+    return redirect()->route('animals.index')->with('success', 'Animal atualizado com sucesso!');
+}
 }

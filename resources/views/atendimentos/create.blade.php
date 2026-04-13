@@ -45,21 +45,57 @@
     <table style="width: 100%; border-collapse: collapse; text-align: left;">
         <thead>
             <tr>
-                <th style="border-bottom: 1px solid #ccc; padding: 8px;">Animal</th>
-                <th style="border-bottom: 1px solid #ccc; padding: 8px;">Data</th>
-                <th style="border-bottom: 1px solid #ccc; padding: 8px;">Descrição</th>
-                <th style="border-bottom: 1px solid #ccc; padding: 8px;">Valor</th>
-                <th style="border-bottom: 1px solid #ccc; padding: 8px;">Observações</th>
+                <th style="padding: 8px;">Animal</th>
+                <th style="padding: 8px;">Data</th>
+                <th style="padding: 8px;">Descrição</th>
+                <th style="padding: 8px;">Valor</th>
+                <th style="padding: 8px;">Observações</th>
+                <th style="padding: 8px;">Status</th>
+                <th style="padding: 8px;">Ações</th>
             </tr>
         </thead>
         <tbody>
             @foreach($atendimentos as $at)
             <tr>
-                <td style="border-bottom: 1px solid #eee; padding: 8px;">{{ $at->animal->nome }}</td>
-                <td style="border-bottom: 1px solid #eee; padding: 8px;">{{ $at->data }}</td>
-                <td style="border-bottom: 1px solid #eee; padding: 8px;">{{ $at->descricao }}</td>
-                <td style="border-bottom: 1px solid #eee; padding: 8px;">R$ {{ number_format($at->valor, 2, ',', '.') }}</td>
-                <td style="border-bottom: 1px solid #eee; padding: 8px;">{{ $at->observacoes }}</td>
+                <td style="padding: 8px;">{{ $at->animal->nome }}</td>
+                <td style="padding: 8px;">{{ $at->data }}</td>
+                <td style="padding: 8px;">{{ $at->descricao }}</td>
+                <td style="padding: 8px;">R$ {{ number_format($at->valor, 2, ',', '.') }}</td>
+                <td style="padding: 8px;">{{ $at->observacoes }}</td>
+
+                {{-- STATUS --}}
+                <td style="padding: 8px;">
+                    @if($at->status == 'nao_atendido')
+                        <span style="background: orange; color: white; padding: 5px 10px; border-radius: 5px;">
+                            Não atendido
+                        </span>
+                    @else
+                        <span style="background: green; color: white; padding: 5px 10px; border-radius: 5px;">
+                            Atendido
+                        </span>
+                    @endif
+                </td>
+
+                {{-- BOTÕES --}}
+                <td style="padding: 8px;">
+                    <form action="{{ route('atendimentos.status', $at->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        @if($at->status == 'nao_atendido')
+                            <input type="hidden" name="status" value="atendido">
+                            <button style="background: green; color: white; border: none; padding: 5px 10px; border-radius: 5px;">
+                                ✔ Já foi atendido
+                            </button>
+                        @else
+                            <input type="hidden" name="status" value="nao_atendido">
+                            <button style="background: orange; color: white; border: none; padding: 5px 10px; border-radius: 5px;">
+                                ↩ Não atendido
+                            </button>
+                        @endif
+                    </form>
+                </td>
+
             </tr>
             @endforeach
         </tbody>

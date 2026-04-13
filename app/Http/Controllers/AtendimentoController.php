@@ -19,6 +19,15 @@ class AtendimentoController extends Controller
         return view('atendimentos.create', compact('animais', 'atendimentos'));
     }
 
+    public function updateStatus(Request $request, $id)
+{
+    $atendimento = Atendimento::findOrFail($id);
+    $atendimento->status = $request->status;
+    $atendimento->save();
+
+    return redirect()->back();
+}
+
     // Salvar atendimento
     public function store(Request $request)
     {
@@ -31,7 +40,6 @@ class AtendimentoController extends Controller
         ]);
 
         Atendimento::create($request->all());
-
         return redirect()->route('atendimentos.create')
             ->with('success', 'Atendimento cadastrado com sucesso!');
     }

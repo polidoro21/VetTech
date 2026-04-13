@@ -11,12 +11,7 @@
 
 
     @auth
-        <p>Bem-vinda, {{ auth()->user()->name }}!</p>
-
-        <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="btn">Sair</button>
-        </form>
+        <p>Bem-vindos, {{ auth()->user()->name }}!</p>
     @endauth
 
     <br><br>

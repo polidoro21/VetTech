@@ -21,22 +21,19 @@
     <a href="{{ route('atendimentos.index') }}">Atendimentos</a>
     <a href="{{ route('contato') }}">Contato</a>
 
-    @auth
-        <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-            @csrf
-            <button style="background:red;color:white;border:none;padding:5px 10px;border-radius:5px;">
-                Sair
-            </button>
-        </form>
-    @endauth
+
 
     @guest
         <a href="{{ route('login') }}">Login</a>
+        <a href="{{ route('cadastro') }}">Cadastro</a>
     @endguest
 </nav>
 
 <main>
     @yield('content')
+    <button style="background-color:red; color:white; border:none; padding:8px 16px; border-radius:5px; font-size:16px; cursor:pointer;">
+        🚪 Sair
+    </button>
 </main>
 
 <footer>

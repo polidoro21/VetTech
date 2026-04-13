@@ -26,7 +26,22 @@ class AuthController extends Controller
         ]);
 
         if (auth()->attempt($credentials)) {
+
             $request->session()->regenerate();
+
+            // pega usuário logado
+            $user = auth()->user();
+
+            // define tipo
+            if ($user->email === 'admin@gmail.com') {
+                $user->tipo = 'admin';
+            } else {
+                $user->tipo = 'user';
+            }
+
+            // salva na sessão
+            session(['usuario' => $user]);
+
             return redirect()->route('home');
         }
 
@@ -56,6 +71,8 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         auth()->logout();
+
+        session()->forget('usuario'); // 🔥 importante
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

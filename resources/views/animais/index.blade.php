@@ -28,13 +28,20 @@
                     <td>{{ $pet->especie }}</td>
                     <td>{{ $pet->idade }}</td>
                     <td>
-                        {{-- <a href="{{ route('animais.edit', $pet->id) }}" class="btn btn-warning btn-sm">Editar</a>
+                        <td>
+                            <a href="{{ route('animais.edit', $pet->id) }}" class="btn btn-warning btn-sm">
+                                Editar
+                            </a>
 
-                        <form action="{{ route('animais.destroy', $pet->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-danger btn-sm">Excluir</button>
-                        </form> --}}
+                            <form action="{{ route('animais.destroy', $pet->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir?')">
+                                    Excluir
+                                </button>
+                            </form>
+                        </td>
                     </td>
                 </tr>
                 @endforeach

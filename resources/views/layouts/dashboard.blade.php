@@ -7,7 +7,7 @@
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Seu CSS (CORRETO no Laravel) -->
+    <!-- Seu CSS -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 
     <style>
@@ -34,21 +34,11 @@
             border-radius: 5px;
         }
 
-        .card-hover:hover {
-            transform: scale(1.02);
-            transition: 0.2s;
-        }
-
         main {
             background-color: #ffffff;
             border-radius: 10px;
             padding: 20px;
             margin-top: 10px;
-        }
-    </style>
-    <style>
-        body {
-            background-color: blue !important;
         }
     </style>
 </head>
@@ -78,43 +68,52 @@
                     </li>
 
                     <li class="nav-item mb-2">
-                        <a class="nav-link text-white" href="#">
+                        <a class="nav-link text-white" href="{{ route('atendimentos.index') }}">
                             📋 Atendimentos
                         </a>
                     </li>
 
-                    <li class="nav-item mt-3">
-                        <a class="nav-link text-danger" href="#">
-                            🚪 Sair
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" href="{{ route('chat') }}">
+                            💬 Chat
                         </a>
+                    </li>
+
+                    <!-- Logout CORRETO -->
+                    <li class="nav-item mt-3">
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button class="nav-link text-danger btn btn-link w-100 text-start">
+                                🚪 Sair
+                            </button>
+                        </form>
                     </li>
 
                 </ul>
             </div>
         </nav>
 
-        <!-- Conteúdo Principal -->
+        <!-- Conteúdo -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
-            <!-- Navbar Superior -->
+            <!-- Navbar -->
             <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h2>@yield('page-title')</h2>
 
                 <div>
                     <span class="me-3">
-                        👤 Bem-vindo, {{ Auth::user()->name ?? 'Usuário' }}
+                        👤 Bem-vindo, {{ session('usuario')['nome'] ?? 'Usuário' }}
                     </span>
                 </div>
             </div>
 
-            <!-- Mensagens -->
+            <!-- Mensagem sucesso -->
             @if(session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}
                 </div>
             @endif
 
-            <!-- Conteúdo -->
             @yield('content')
 
         </main>
