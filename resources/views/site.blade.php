@@ -432,15 +432,13 @@
                 <div class="flex flex-wrap gap-3" style="animation: fadeUp 0.7s ease 0.5s forwards; opacity:0;">
 
                     <!-- TODO: Substituir pela URL real do sistema -->
-                    <a href="{{ route('clinicas.buscar') }}">Buscar clínicas</a>
-                        class="btn-outline-white text-white font-semibold px-6 py-3 rounded-full text-sm flex items-center gap-2">
+                    <a href="{{ route('clinicas.buscar') }}"></a>
                         <i data-lucide="building-2" class="w-4 h-4"></i>
                         Ver clínicas próximas
                     </a>
 
                     <!-- TODO: Substituir pela URL real do sistema -->
-                    <a href="{{ route('telemedicina.index') }}">Falar com veterinário</a>
-                        class="btn-accent text-white font-semibold px-6 py-3 rounded-full text-sm flex items-center gap-2">
+                    <a href="{{ route('telemedicina.index') }}"></a>
                         <i data-lucide="video" class="w-4 h-4"></i>
                         Falar com veterinário
                     </a>
@@ -476,8 +474,8 @@
 
 
     <!-- ═══════════════════════════════════════════════
-       COMO FUNCIONA
-  ═══════════════════════════════════════════════ -->
+        COMO FUNCIONA
+        ═══════════════════════════════════════════════ -->
     <section id="como-funciona" class="section-soft py-24">
         <div class="max-w-7xl mx-auto px-5">
 
@@ -623,8 +621,8 @@
 
 
     <!-- ═══════════════════════════════════════════════
-       BENEFÍCIOS
-  ═══════════════════════════════════════════════ -->
+        BENEFÍCIOS
+    ═══════════════════════════════════════════════ -->
     <section id="beneficios" class="py-24 bg-white">
         <div class="max-w-7xl mx-auto px-5">
 
@@ -696,8 +694,8 @@
 
 
     <!-- ═══════════════════════════════════════════════
-       TELEMEDICINA VETERINÁRIA
-  ═══════════════════════════════════════════════ -->
+        TELEMEDICINA VETERINÁRIA
+    ═══════════════════════════════════════════════ -->
     <section id="telemedicina" class="telemedicine-bg py-24">
         <div class="max-w-7xl mx-auto px-5">
             <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -800,8 +798,8 @@
 
 
     <!-- ═══════════════════════════════════════════════
-       PARA QUEM É
-  ═══════════════════════════════════════════════ -->
+        PARA QUEM É
+    ═══════════════════════════════════════════════ -->
     <section class="py-24 bg-white">
         <div class="max-w-7xl mx-auto px-5">
 
@@ -883,8 +881,8 @@
 
 
     <!-- ═══════════════════════════════════════════════
-       CLÍNICAS SIMULADAS (UI Visual)
-  ═══════════════════════════════════════════════ -->
+        CLÍNICAS SIMULADAS (UI Visual)
+    ═══════════════════════════════════════════════ -->
     <section id="clinicas" class="section-soft py-24">
         <div class="max-w-7xl mx-auto px-5">
 
@@ -1314,11 +1312,11 @@
                         </li>
                         <li class="flex items-center gap-2">
                             <i data-lucide="phone" class="w-4 h-4 text-primary shrink-0"></i>
-                            (11) 9 9999-0000
+                            (18) 99180-3040
                         </li>
                         <li class="flex items-center gap-2">
                             <i data-lucide="map-pin" class="w-4 h-4 text-primary shrink-0"></i>
-                            São Paulo, SP — Brasil
+                            Guararapes, SP — Brasil
                         </li>
                     </ul>
                 </div>
@@ -1345,8 +1343,8 @@
 
 
     <!-- ═══════════════════════════════════════════════
-       SCRIPTS
-  ═══════════════════════════════════════════════ -->
+        SCRIPTS
+    ═══════════════════════════════════════════════ -->
     <script>
         // ── 1. Inicializar ícones Lucide ──
         lucide.createIcons();
