@@ -21,58 +21,53 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (auth()->attempt($credentials)) {
+        if (auth()->attempt($credentials, $request->boolean('remember'))) {
 
             $request->session()->regenerate();
 
-            // pega usuário logado
             $user = auth()->user();
 
-            // define tipo
-            if ($user->email === 'admin@gmail.com') {
-                $user->tipo = 'admin';
-            } else {
-                $user->tipo = 'user';
-            }
+            // Define tipo do usuário na sessão
+            $user->tipo = ($user->email === 'admin@gmail.com') ? 'admin' : 'user';
 
-            // salva na sessão
             session(['usuario' => $user]);
 
-            return redirect()->route('painel');
+            // CORREÇÃO: rota correta é 'dashboard', não 'painel'
+            return redirect()->intended(route('dashboard'));
         }
 
         return back()->withErrors([
-            'email' => 'Credenciais inválidas.',
+            'email' => 'E-mail ou senha incorretos.',
         ])->onlyInput('email');
     }
 
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6'
+            'name'     => 'required',
+            'email'    => 'required|email|unique:users',
+            'password' => 'required|min:6',
         ]);
 
         User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
         return redirect()->route('login')
-            ->with('success', 'Cadastro realizado!');
+            ->with('success', 'Cadastro realizado! Faça login para continuar.');
     }
 
     public function logout(Request $request)
     {
         auth()->logout();
 
-        session()->forget('usuario'); // 🔥 importante
+        session()->forget('usuario');
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
