@@ -22,16 +22,65 @@ class Animal extends Model
         'porte'
     ];
 
-    // Relacionamento com atendimentos
-    public function atendimentos()
-    {
-        return $this->hasMany(Atendimento::class);
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | CASTS
+    |--------------------------------------------------------------------------
+    */
+
+    protected $casts = [
+        'data_nascimento' => 'date',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELACIONAMENTO USUÁRIO
+    |--------------------------------------------------------------------------
+    */
 
     public function usuario()
     {
         return $this->belongsTo(User::class, 'id_usuario');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELACIONAMENTO ATENDIMENTOS
+    |--------------------------------------------------------------------------
+    */
+
+    public function atendimentos()
+    {
+        return $this->hasMany(Atendimento::class, 'animal_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELACIONAMENTO VACINAS
+    |--------------------------------------------------------------------------
+    */
+
+    public function vacinas()
+    {
+        return $this->hasMany(Vacina::class, 'animal_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELACIONAMENTO CONSULTAS
+    |--------------------------------------------------------------------------
+    */
+
+    public function consultas()
+    {
+        return $this->hasMany(Consulta::class, 'animal_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | IDADE AUTOMÁTICA
+    |--------------------------------------------------------------------------
+    */
 
     public function getIdadeAttribute()
     {
