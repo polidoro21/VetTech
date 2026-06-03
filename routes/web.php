@@ -60,6 +60,9 @@ Route::get('/clinicas', [ClinicaController::class, 'index'])
 Route::get('/telemedicina', [TelemedicinaController::class, 'index'])
     ->name('telemedicina.index');
 
+    Route::get('/clinicas/busca', [ClinicaController::class, 'buscar'])
+    ->name('clinicas.buscar');
+
 /*
 |--------------------------------------------------------------------------
 | CONTATO

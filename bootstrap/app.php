@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -8,16 +9,17 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function ($middleware) {
+
+    ->withMiddleware(function (Middleware $middleware) {
+
         $middleware->alias([
-            'auth.custom' => \App\Http\Middleware\AuthMiddleware::class,
+            'auth.custom' => \App\Http\Middleware\AuthCustom::class,
         ]);
+
     })
+
     ->withExceptions(function ($exceptions) {
         //
-    })->create();
+    })
 
-    $middleware->alias([
-        'auth.custom' => \App\Http\Middleware\AuthMiddleware::class,
-        'admin' => \App\Http\Middleware\AdminMiddleware::class,
-    ]);
+    ->create();
