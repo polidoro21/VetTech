@@ -14,7 +14,7 @@
         <button type="submit">Enviar</button>
     </form>
 
-    <a href="{{ route('clinicas.buscar') }}">
+    <a href="{{ routeroute('clinicas.index') }}">
         <button type="button" style="margin-top:10px;">
             Buscar clínicas próximas 🐾
         </button>
