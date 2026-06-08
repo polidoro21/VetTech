@@ -11,6 +11,7 @@ use App\Http\Controllers\ClinicaController;
 use App\Http\Controllers\TelemedicinaController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\VacinaController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +43,7 @@ Route::get('/vettech', function () {
     return view('visitantes.index');
 })->name('vettech');
 
-
+// MEUS ANIMAIS
 Route::get('/meus-animais', [AnimalController::class, 'index'])
     ->name('animais.index');
 
@@ -56,12 +57,13 @@ Route::get('/meus-animais', [AnimalController::class, 'index'])
 Route::get('/clinicas', [ClinicaController::class, 'index'])
     ->name('clinicas.index');
 
+// BUSCA DE CLÍNICAS
+Route::get('/clinicas/busca', [ClinicaController::class, 'buscar'])
+    ->name('clinicas.buscar');
+
 // TELEMEDICINA
 Route::get('/telemedicina', [TelemedicinaController::class, 'index'])
     ->name('telemedicina.index');
-
-    Route::get('/clinicas/busca', [ClinicaController::class, 'buscar'])
-    ->name('clinicas.buscar');
 
 /*
 |--------------------------------------------------------------------------
@@ -70,11 +72,9 @@ Route::get('/telemedicina', [TelemedicinaController::class, 'index'])
 */
 
 Route::post('/contato/enviar', function (Request $request) {
-
     return redirect()
         ->back()
         ->with('success', 'Mensagem enviada com sucesso!');
-
 })->name('contato.enviar');
 
 /*
@@ -110,15 +110,13 @@ Route::post('/logout', [AuthController::class, 'logout'])
 
 Route::middleware(['auth.custom'])->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | DASHBOARD
-    |--------------------------------------------------------------------------
-    */
+// ANTES (estático):
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');
 
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+// DEPOIS (com controller):
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     /*
     |--------------------------------------------------------------------------
@@ -126,27 +124,21 @@ Route::middleware(['auth.custom'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    // LISTAR PETS
     Route::get('/meus-animais', [AnimalController::class, 'index'])
         ->name('animais.index');
 
-    // NOVO PET
     Route::get('/novo-pet', [AnimalController::class, 'create'])
         ->name('animais.create');
 
-    // SALVAR PET
     Route::post('/novo-pet', [AnimalController::class, 'store'])
         ->name('animais.store');
 
-    // EDITAR PET
     Route::get('/animais/{id}/edit', [AnimalController::class, 'edit'])
         ->name('animais.edit');
 
-    // ATUALIZAR PET
     Route::put('/animais/{id}', [AnimalController::class, 'update'])
         ->name('animais.update');
 
-    // EXCLUIR PET
     Route::delete('/animais/{id}', [AnimalController::class, 'destroy'])
         ->name('animais.destroy');
 
@@ -156,15 +148,12 @@ Route::middleware(['auth.custom'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    // TELA CARTEIRA
     Route::get('/carteira-vacina', [VacinaController::class, 'index'])
         ->name('vacinas.index');
 
-    // NOVA VACINA
     Route::post('/vacinas', [VacinaController::class, 'store'])
         ->name('vacinas.store');
 
-    // EXCLUIR VACINA
     Route::delete('/vacinas/{id}', [VacinaController::class, 'destroy'])
         ->name('vacinas.destroy');
 
@@ -174,21 +163,12 @@ Route::middleware(['auth.custom'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-
-
-
-    Route::delete('/atendimentos/{id}', [AtendimentoController::class, 'destroy'])
-    ->name('atendimentos.destroy');
-
-    // LISTAR CONSULTAS
     Route::get('/consultas', [ConsultaController::class, 'index'])
         ->name('consultas.index');
 
-    // NOVA CONSULTA
     Route::get('/consultas/create', [ConsultaController::class, 'create'])
         ->name('consultas.create');
 
-    // SALVAR CONSULTA
     Route::post('/consultas', [ConsultaController::class, 'store'])
         ->name('consultas.store');
 
@@ -198,21 +178,20 @@ Route::middleware(['auth.custom'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    // TELA ATENDIMENTOS
     Route::get('/atendimentos', [AtendimentoController::class, 'index'])
         ->name('atendimentos.index');
 
-    // NOVO ATENDIMENTO
     Route::get('/atendimentos/create', [AtendimentoController::class, 'create'])
         ->name('atendimentos.create');
 
-    // SALVAR
     Route::post('/atendimentos', [AtendimentoController::class, 'store'])
         ->name('atendimentos.store');
 
-    // STATUS
     Route::put('/atendimentos/{id}/status', [AtendimentoController::class, 'updateStatus'])
         ->name('atendimentos.status');
+
+    Route::delete('/atendimentos/{id}', [AtendimentoController::class, 'destroy'])
+        ->name('atendimentos.destroy');
 
     /*
     |--------------------------------------------------------------------------
@@ -220,12 +199,9 @@ Route::middleware(['auth.custom'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    // TELA CHAT
     Route::get('/chat', [ChatController::class, 'index'])
         ->name('chat');
 
-    // ENVIAR MSG
     Route::post('/chat', [ChatController::class, 'store'])
         ->name('chat.send');
-
 });

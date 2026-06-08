@@ -1,5 +1,3 @@
-<body>
-
     <header>...</header>
 
     <nav>...</nav>

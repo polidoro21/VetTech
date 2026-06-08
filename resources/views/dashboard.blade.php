@@ -539,71 +539,21 @@
             </button>
         </div>
 
-        <!-- ── Navigation ── -->
-        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
 
-            <!-- Main group -->
-            <p class="nav-label text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-2">Principal</p>
-
-            <a href="#" class="nav-item active" data-section="dashboard">
-                <i data-lucide="layout-dashboard" class="nav-icon"></i>
-                <span class="nav-label">Dashboard</span>
-            </a>
-            <a href="#" class="nav-item" data-section="pets">
-                <i data-lucide="paw-print" class="nav-icon"></i>
-                <span class="nav-label">Meus Pets</span>
-            </a>
-            <a href="#" class="nav-item" data-section="consultas">
-                <i data-lucide="clipboard-list" class="nav-icon"></i>
-                <span class="nav-label">Consultas</span>
-                <span
-                    class="nav-label ml-auto bg-brand text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
-            </a>
-            <a href="#" class="nav-item" data-section="telemedicina">
-                <i data-lucide="video" class="nav-icon"></i>
-                <span class="nav-label">Telemedicina</span>
-                <span class="nav-label ml-auto flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse2"></span>
-                    <span class="text-[10px] text-accent font-semibold">Online</span>
-                </span>
-            </a>
-            <a href="#" class="nav-item" data-section="clinicas">
-                <i data-lucide="building-2" class="nav-icon"></i>
-                <span class="nav-label">Clínicas</span>
-            </a>
-            <a href="#" class="nav-item" data-section="agendamentos">
-                <i data-lucide="calendar-check" class="nav-icon"></i>
-                <span class="nav-label">Agendamentos</span>
-            </a>
-            <a href="#" class="nav-item" data-section="carteirinha">
-                <i data-lucide="credit-card" class="nav-icon"></i>
-                <span class="nav-label">Carteirinha</span>
-            </a>
-
-            <!-- Divider -->
-            <div class="border-t border-slate-100 my-3"></div>
-            <p class="nav-label text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-2">Conta</p>
-
-            <a href="#" class="nav-item" data-section="config">
-                <i data-lucide="settings" class="nav-icon"></i>
-                <span class="nav-label">Configurações</span>
-            </a>
-            <a href="vettech-login.html" class="nav-item" data-section="sair">
-                <i data-lucide="log-out" class="nav-icon text-rose-400"></i>
-                <span class="nav-label text-rose-400">Sair</span>
-            </a>
-
-        </nav>
 
         <!-- ── User card ── -->
         <div class="px-3 py-4 border-t border-slate-100 flex-shrink-0">
             <div
                 class="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer group">
-                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=facearea&facepad=2.5&w=80&q=80"
-                    alt="Lorrayne" class="w-9 h-9 rounded-full object-cover avatar-ring flex-shrink-0" />
+                <div class="w-9 h-9 rounded-full bg-brand flex items-center justify-center flex-shrink-0 avatar-ring">
+                    <span class="text-white font-bold text-sm">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    </span>
+                </div>
                 <div class="nav-label overflow-hidden">
-                    <p class="text-sm font-semibold text-slate-800 truncate leading-tight">Lorrayne Silva</p>
-                    <p class="text-xs text-slate-400 truncate">Tutora de Pet</p>
+                    <p class="text-sm font-semibold text-slate-800 truncate leading-tight">{{ auth()->user()->name }}
+                    </p>
+                    <p class="text-xs text-slate-400 truncate">Tutor(a) de Pet</p>
                 </div>
                 <i data-lucide="chevrons-up-down"
                     class="nav-label w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors ml-auto flex-shrink-0"></i>
@@ -631,14 +581,14 @@
                 <i data-lucide="menu" class="w-5 h-5"></i>
             </button>
 
-            <!-- Greeting -->
-            <div class="flex-1 min-w-0">
-                <h1 class="font-display text-base sm:text-lg font-bold text-slate-900 truncate">
-                    Bem-vinda de volta, Lorrayne 🐾
-                </h1>
-                <p class="text-xs text-slate-400 mt-0.5 hidden sm:block">Quarta-feira, 7 de maio de 2025 · Birigui, SP
-                </p>
-            </div>
+            {{-- DEPOIS --}}
+            <h1 class="font-display text-base sm:text-lg font-bold text-slate-900 truncate">
+                Bem-vindo(a) de volta, {{ auth()->user()->name }} 🐾
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5 hidden sm:block">
+                {{ now()->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
+            </p>
+
 
             <!-- Search (hidden on very small screens) -->
             <div class="hidden md:flex items-center relative flex-shrink-0 w-60">
@@ -665,8 +615,11 @@
 
                 <!-- Avatar -->
                 <button class="ml-1 flex-shrink-0">
-                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=facearea&facepad=2.5&w=80&q=80"
-                        alt="Lorrayne" class="w-9 h-9 rounded-full object-cover avatar-ring" />
+                    <div class="w-9 h-9 rounded-full bg-brand avatar-ring flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </span>
+                    </div>
                 </button>
 
             </div>
@@ -695,8 +648,10 @@
                             <span class="text-xs font-semibold text-accent bg-accent-light px-2 py-1 rounded-full">+1
                                 mês</span>
                         </div>
-                        <p class="font-display text-3xl font-bold text-slate-900">3</p>
-                        <p class="text-sm text-slate-500 mt-1">Pets cadastrados</p>
+                        <p class="font-display text-3xl font-bold text-slate-900" id="stat0">{{ $totalAnimais }}</p>
+                        <p class="text-sm text-slate-500 mt-1">
+                            {{ $totalAnimais === 1 ? 'Pet cadastrado' : 'Pets cadastrados' }}
+                        </p>
                         <div class="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                             <div class="h-full w-3/4 bg-gradient-to-r from-brand to-accent rounded-full"></div>
                         </div>
@@ -711,8 +666,10 @@
                             <span class="text-xs font-semibold text-brand bg-brand-light px-2 py-1 rounded-full">Este
                                 ano</span>
                         </div>
-                        <p class="font-display text-3xl font-bold text-slate-900">12</p>
-                        <p class="text-sm text-slate-500 mt-1">Consultas realizadas</p>
+                        <p class="font-display text-3xl font-bold text-slate-900" id="stat1">{{ $totalConsultas }}</p>
+                        <p class="text-sm text-slate-500 mt-1">
+                            {{ $totalConsultas === 1 ? 'Consulta realizada' : 'Consultas realizadas' }}
+                        </p>
                         <div class="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                             <div class="h-full w-1/2 bg-gradient-to-r from-accent to-brand rounded-full"></div>
                         </div>
@@ -728,8 +685,10 @@
                                 class="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">Birigui,
                                 SP</span>
                         </div>
-                        <p class="font-display text-3xl font-bold text-slate-900">8</p>
-                        <p class="text-sm text-slate-500 mt-1">Clínicas próximas</p>
+                        <p class="font-display text-3xl font-bold text-slate-900" id="stat2">{{ $totalClinicas }}</p>
+                        <p class="text-sm text-slate-500 mt-1">
+                            {{ $totalClinicas === 1 ? 'Clínica próxima' : 'Clínicas próximas' }}
+                        </p>
                         <div class="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                             <div class="h-full w-2/3 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full"></div>
                         </div>
@@ -760,7 +719,7 @@
 
 
             <!-- ══════════════════════════════════════════════════
-         SECTION 2 — TELEMEDICINE BANNER
+            SECTION 2 — TELEMEDICINE BANNER
     ══════════════════════════════════════════════════ -->
             <section class="animate-fade-up d3">
                 <div class="tele-banner p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
@@ -813,7 +772,7 @@
 
 
             <!-- ══════════════════════════════════════════════════
-         SECTION 3 — MEUS PETS
+            SECTION 3 — MEUS PETS
     ══════════════════════════════════════════════════ -->
             <section class="animate-fade-up d4">
                 <div class="flex items-center justify-between mb-5">
@@ -1302,13 +1261,84 @@
                     <span class="font-display text-sm font-bold text-slate-700">VetTech</span>
                     <span class="text-xs text-slate-400">© 2025 · Todos os direitos reservados</span>
                 </div>
-                <div class="flex items-center gap-4">
-                    <a href="#" class="text-xs text-slate-400 hover:text-slate-600 transition-colors">Termos</a>
-                    <a href="#"
-                        class="text-xs text-slate-400 hover:text-slate-600 transition-colors">Privacidade</a>
-                    <a href="#"
-                        class="text-xs text-slate-400 hover:text-slate-600 transition-colors">Suporte</a>
-                </div>
+                <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+
+                    <p class="nav-label text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-2">
+                        Principal
+                    </p>
+
+                    <a href="{{ route('dashboard') }}"
+                        class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i data-lucide="layout-dashboard" class="nav-icon"></i>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+
+                    <a href="{{ route('animais.index') }}"
+                        class="nav-item {{ request()->routeIs('animais.*') ? 'active' : '' }}">
+                        <i data-lucide="paw-print" class="nav-icon"></i>
+                        <span class="nav-label">Meus Pets</span>
+                    </a>
+
+                    <a href="{{ route('consultas.index') }}"
+                        class="nav-item {{ request()->routeIs('consultas.*') ? 'active' : '' }}">
+                        <i data-lucide="clipboard-list" class="nav-icon"></i>
+                        <span class="nav-label">Consultas</span>
+                        @if ($totalConsultas > 0)
+                            <span
+                                class="nav-label ml-auto bg-brand text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                {{ $totalConsultas }}
+                            </span>
+                        @endif
+                    </a>
+
+                    <a href="{{ route('telemedicina.index') }}"
+                        class="nav-item {{ request()->routeIs('telemedicina.*') ? 'active' : '' }}">
+                        <i data-lucide="video" class="nav-icon"></i>
+                        <span class="nav-label">Telemedicina</span>
+                        <span class="nav-label ml-auto flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse2"></span>
+                            <span class="text-[10px] text-accent font-semibold">Online</span>
+                        </span>
+                    </a>
+
+                    <a href="{{ route('clinicas.index') }}"
+                        class="nav-item {{ request()->routeIs('clinicas.*') ? 'active' : '' }}">
+                        <i data-lucide="building-2" class="nav-icon"></i>
+                        <span class="nav-label">Clínicas</span>
+                    </a>
+
+                    <a href="{{ route('atendimentos.index') }}"
+                        class="nav-item {{ request()->routeIs('atendimentos.*') ? 'active' : '' }}">
+                        <i data-lucide="calendar-check" class="nav-icon"></i>
+                        <span class="nav-label">Agendamentos</span>
+                    </a>
+
+                    <a href="{{ route('vacinas.index') }}"
+                        class="nav-item {{ request()->routeIs('vacinas.*') ? 'active' : '' }}">
+                        <i data-lucide="credit-card" class="nav-icon"></i>
+                        <span class="nav-label">Carteirinha</span>
+                    </a>
+
+                    <div class="border-t border-slate-100 my-3"></div>
+                    <p class="nav-label text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-2">
+                        Conta
+                    </p>
+
+                    <a href="#" class="nav-item">
+                        <i data-lucide="settings" class="nav-icon"></i>
+                        <span class="nav-label">Configurações</span>
+                    </a>
+
+                    {{-- Logout como formulário POST (obrigatório no Laravel) --}}
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="nav-item w-full text-left">
+                            <i data-lucide="log-out" class="nav-icon text-rose-400"></i>
+                            <span class="nav-label text-rose-400">Sair</span>
+                        </button>
+                    </form>
+
+                </nav>
             </footer>
 
         </main>
@@ -1326,7 +1356,7 @@
         lucide.createIcons();
 
         /* ─────────────────────────────────────
-           SIDEBAR — Mobile open/close
+            SIDEBAR — Mobile open/close
         ───────────────────────────────────── */
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -1352,7 +1382,7 @@
         });
 
         /* ─────────────────────────────────────
-           SIDEBAR — Desktop collapse/expand
+            SIDEBAR — Desktop collapse/expand
         ───────────────────────────────────── */
         const mainContent = document.getElementById('mainContent');
         const collapseBtn = document.getElementById('collapseBtn');
@@ -1372,7 +1402,7 @@
         }
 
         /* ─────────────────────────────────────
-           NAVIGATION — Active state
+            NAVIGATION — Active state
         ───────────────────────────────────── */
         document.querySelectorAll('.nav-item[data-section]').forEach(item => {
             item.addEventListener('click', (e) => {
@@ -1386,7 +1416,7 @@
         });
 
         /* ─────────────────────────────────────
-           STAT COUNTER ANIMATION
+            STAT COUNTER ANIMATION
         ───────────────────────────────────── */
         function animateCount(el, target, duration = 900) {
             const start = performance.now();
@@ -1423,6 +1453,7 @@
         const firstCard = document.querySelector('.stat-card');
         if (firstCard) observer.observe(firstCard);
     </script>
+
 
 </body>
 
