@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -13,20 +16,48 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        session(['usuario_logado' => true]);
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-        return redirect()->route('dashboard');
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            return redirect()->intended('dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => 'Os dados de acesso estão incorretos.',
+        ])->onlyInput('email');
     }
 
     public function register(Request $request)
     {
-        return redirect()->route('login');
+        $request->validate([
+            'name'     => 'required',
+            'email'    => 'required|email|unique:users',
+            'password' => 'required|min:6',
+        ]);
+
+        User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()->route('login')
+            ->with('success', 'Cadastro realizado! Faça login para continuar.');
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        session()->forget('usuario_logado');
+        Auth::logout();
 
-        return redirect()->route('home');
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }

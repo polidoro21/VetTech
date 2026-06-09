@@ -110,11 +110,6 @@ Route::post('/logout', [AuthController::class, 'logout'])
 
 Route::middleware(['auth.custom'])->group(function () {
 
-// ANTES (estático):
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
-
 // DEPOIS (com controller):
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
