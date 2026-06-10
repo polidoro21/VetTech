@@ -778,123 +778,100 @@
                 <div class="flex items-center justify-between mb-5">
                     <div>
                         <h2 class="font-display text-lg font-bold text-slate-900">Meus Pets</h2>
-                        <p class="text-sm text-slate-400 mt-0.5">3 pets cadastrados na plataforma</p>
+                        <p class="text-sm text-slate-400 mt-0.5">
+                            {{ $totalAnimais }} {{ $totalAnimais === 1 ? 'pet cadastrado' : 'pets cadastrados' }} na plataforma
+                        </p>
                     </div>
-                    <button class="btn-primary py-2 px-4 text-sm flex items-center gap-2">
+                    <a href="{{ route('animais.create') }}" class="btn-primary py-2 px-4 text-sm flex items-center gap-2">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <span class="hidden sm:inline">Adicionar pet</span>
-                    </button>
+                    </a>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
 
-                    <!-- Pet 1: Mel -->
-                    <div class="pet-card">
-                        <div class="relative h-44 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=600&q=80"
-                                alt="Mel" class="w-full h-full object-cover" />
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent">
-                            </div>
-                            <span
-                                class="absolute top-3 right-3 badge-ok text-xs font-bold px-2.5 py-1 rounded-full">Saudável</span>
-                            <div class="absolute bottom-3 left-4 text-white">
-                                <p class="font-display font-bold text-lg leading-tight">Mel</p>
-                                <p class="text-xs text-white/75">Golden Retriever</p>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <div class="grid grid-cols-3 gap-2 mb-4">
-                                <div class="bg-slate-50 rounded-xl p-2.5 text-center">
-                                    <p class="text-xs text-slate-400 font-medium">Idade</p>
-                                    <p class="text-sm font-bold text-slate-800 mt-0.5">3 anos</p>
-                                </div>
-                                <div class="bg-slate-50 rounded-xl p-2.5 text-center">
-                                    <p class="text-xs text-slate-400 font-medium">Peso</p>
-                                    <p class="text-sm font-bold text-slate-800 mt-0.5">28 kg</p>
-                                </div>
-                                <div class="bg-slate-50 rounded-xl p-2.5 text-center">
-                                    <p class="text-xs text-slate-400 font-medium">Sexo</p>
-                                    <p class="text-sm font-bold text-slate-800 mt-0.5">Fêmea</p>
-                                </div>
-                            </div>
-                            <button class="btn-primary w-full py-2.5 text-sm flex items-center justify-center gap-2">
-                                <i data-lucide="eye" class="w-4 h-4"></i> Ver Perfil
-                            </button>
-                        </div>
-                    </div>
+                    @forelse ($animais as $animal)
+                    @php
+                        // Calcula idade a partir de data_nascimento (campo esperado no model)
+                        $idade = $animal->data_nascimento
+                            ? \Carbon\Carbon::parse($animal->data_nascimento)->age
+                            : null;
 
-                    <!-- Pet 2: Thor -->
-                    <div class="pet-card">
-                        <div class="relative h-44 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=600&q=80"
-                                alt="Thor" class="w-full h-full object-cover" />
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent">
-                            </div>
-                            <span
-                                class="absolute top-3 right-3 badge-atencao text-xs font-bold px-2.5 py-1 rounded-full">Atenção</span>
-                            <div class="absolute bottom-3 left-4 text-white">
-                                <p class="font-display font-bold text-lg leading-tight">Thor</p>
-                                <p class="text-xs text-white/75">Labrador Retriever</p>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <div class="grid grid-cols-3 gap-2 mb-4">
-                                <div class="bg-slate-50 rounded-xl p-2.5 text-center">
-                                    <p class="text-xs text-slate-400 font-medium">Idade</p>
-                                    <p class="text-sm font-bold text-slate-800 mt-0.5">5 anos</p>
-                                </div>
-                                <div class="bg-slate-50 rounded-xl p-2.5 text-center">
-                                    <p class="text-xs text-slate-400 font-medium">Peso</p>
-                                    <p class="text-sm font-bold text-slate-800 mt-0.5">32 kg</p>
-                                </div>
-                                <div class="bg-slate-50 rounded-xl p-2.5 text-center">
-                                    <p class="text-xs text-slate-400 font-medium">Sexo</p>
-                                    <p class="text-sm font-bold text-slate-800 mt-0.5">Macho</p>
-                                </div>
-                            </div>
-                            <button class="btn-primary w-full py-2.5 text-sm flex items-center justify-center gap-2">
-                                <i data-lucide="eye" class="w-4 h-4"></i> Ver Perfil
-                            </button>
-                        </div>
-                    </div>
+                        // Badge de status (campo "status" ou "situacao" no model)
+                        $status   = $animal->status ?? null;
+                        $badgeCls = match($status) {
+                            'atencao', 'atenção' => 'badge-atencao',
+                            default              => 'badge-ok',
+                        };
+                        $badgeLabel = match($status) {
+                            'atencao', 'atenção' => 'Atenção',
+                            default              => 'Saudável',
+                        };
 
-                    <!-- Pet 3: Luna -->
+                        // Sexo formatado
+                        $sexoLabel = match(strtolower($animal->sexo ?? '')) {
+                            'm', 'macho'  => 'Macho',
+                            'f', 'femea', 'fêmea' => 'Fêmea',
+                            default => $animal->sexo ?? '—',
+                        };
+                    @endphp
                     <div class="pet-card">
-                        <div class="relative h-44 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?auto=format&fit=crop&w=600&q=80"
-                                alt="Luna" class="w-full h-full object-cover" />
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent">
-                            </div>
-                            <span
-                                class="absolute top-3 right-3 badge-ok text-xs font-bold px-2.5 py-1 rounded-full">Saudável</span>
+                        <div class="relative h-44 overflow-hidden bg-slate-100">
+                            @if ($animal->foto)
+                                <img src="{{ asset('storage/' . $animal->foto) }}"
+                                    alt="{{ $animal->nome }}" class="w-full h-full object-cover" />
+                            @else
+                                {{-- Placeholder quando não há foto --}}
+                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-light to-accent-light">
+                                    <i data-lucide="paw-print" class="w-16 h-16 text-brand/30"></i>
+                                </div>
+                            @endif
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                            <span class="absolute top-3 right-3 {{ $badgeCls }} text-xs font-bold px-2.5 py-1 rounded-full">
+                                {{ $badgeLabel }}
+                            </span>
                             <div class="absolute bottom-3 left-4 text-white">
-                                <p class="font-display font-bold text-lg leading-tight">Luna</p>
-                                <p class="text-xs text-white/75">Gato Persa</p>
+                                <p class="font-display font-bold text-lg leading-tight">{{ $animal->nome }}</p>
+                                <p class="text-xs text-white/75">{{ $animal->raca ?? $animal->especie ?? '—' }}</p>
                             </div>
                         </div>
                         <div class="p-4">
                             <div class="grid grid-cols-3 gap-2 mb-4">
                                 <div class="bg-slate-50 rounded-xl p-2.5 text-center">
                                     <p class="text-xs text-slate-400 font-medium">Idade</p>
-                                    <p class="text-sm font-bold text-slate-800 mt-0.5">2 anos</p>
+                                    <p class="text-sm font-bold text-slate-800 mt-0.5">
+                                        {{ $idade !== null ? $idade . ' ano' . ($idade === 1 ? '' : 's') : '—' }}
+                                    </p>
                                 </div>
                                 <div class="bg-slate-50 rounded-xl p-2.5 text-center">
                                     <p class="text-xs text-slate-400 font-medium">Peso</p>
-                                    <p class="text-sm font-bold text-slate-800 mt-0.5">4.2 kg</p>
+                                    <p class="text-sm font-bold text-slate-800 mt-0.5">
+                                        {{ $animal->peso ? $animal->peso . ' kg' : '—' }}
+                                    </p>
                                 </div>
                                 <div class="bg-slate-50 rounded-xl p-2.5 text-center">
                                     <p class="text-xs text-slate-400 font-medium">Sexo</p>
-                                    <p class="text-sm font-bold text-slate-800 mt-0.5">Fêmea</p>
+                                    <p class="text-sm font-bold text-slate-800 mt-0.5">{{ $sexoLabel }}</p>
                                 </div>
                             </div>
-                            <button class="btn-primary w-full py-2.5 text-sm flex items-center justify-center gap-2">
+                            <a href="{{ route('animais.show', $animal->id) }}"
+                                class="btn-primary w-full py-2.5 text-sm flex items-center justify-center gap-2">
                                 <i data-lucide="eye" class="w-4 h-4"></i> Ver Perfil
-                            </button>
+                            </a>
                         </div>
                     </div>
+                    @empty
+                    <div class="xl:col-span-3 sm:col-span-2 flex flex-col items-center justify-center py-16 text-center">
+                        <div class="w-16 h-16 rounded-2xl bg-brand-light flex items-center justify-center mb-4">
+                            <i data-lucide="paw-print" class="w-8 h-8 text-brand/50"></i>
+                        </div>
+                        <p class="font-semibold text-slate-700 mb-1">Nenhum pet cadastrado ainda</p>
+                        <p class="text-sm text-slate-400 mb-4">Adicione seu primeiro pet para começar.</p>
+                        <a href="{{ route('animais.create') }}" class="btn-primary py-2 px-5 text-sm flex items-center gap-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Adicionar pet
+                        </a>
+                    </div>
+                    @endforelse
 
                 </div>
             </section>
@@ -912,11 +889,13 @@
                     <div class="flex items-center justify-between mb-5">
                         <div>
                             <h2 class="font-display text-base font-bold text-slate-900">Próximas Consultas</h2>
-                            <p class="text-xs text-slate-400 mt-0.5">3 consultas agendadas</p>
+                            <p class="text-xs text-slate-400 mt-0.5">
+                                {{ $totalConsultas }} {{ $totalConsultas === 1 ? 'consulta agendada' : 'consultas agendadas' }}
+                            </p>
                         </div>
-                        <button class="btn-ghost py-1.5 px-3 text-xs flex items-center gap-1.5">
+                        <a href="{{ route('consultas.index') }}" class="btn-ghost py-1.5 px-3 text-xs flex items-center gap-1.5">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Ver todas
-                        </button>
+                        </a>
                     </div>
 
                     <!-- Table -->
@@ -925,93 +904,74 @@
                             <thead>
                                 <tr class="border-b border-slate-100">
                                     <th class="text-left text-xs font-semibold text-slate-400 pb-3 pr-4">Pet</th>
-                                    <th class="text-left text-xs font-semibold text-slate-400 pb-3 pr-4">Veterinário
-                                    </th>
-                                    <th class="text-left text-xs font-semibold text-slate-400 pb-3 pr-4">Data / Hora
-                                    </th>
+                                    <th class="text-left text-xs font-semibold text-slate-400 pb-3 pr-4">Veterinário</th>
+                                    <th class="text-left text-xs font-semibold text-slate-400 pb-3 pr-4">Data / Hora</th>
                                     <th class="text-left text-xs font-semibold text-slate-400 pb-3 pr-4">Tipo</th>
                                     <th class="text-left text-xs font-semibold text-slate-400 pb-3"></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-50">
 
-                                <!-- Row 1 -->
+                                @forelse ($consultas as $consulta)
+                                @php
+                                    $tipo      = $consulta->tipo ?? 'presencial';
+                                    $badgeCls  = $tipo === 'online' ? 'badge-online' : 'badge-ok';
+                                    $badgeTxt  = ucfirst($tipo);
+                                    $animal    = $consulta->animal ?? null;
+                                    $vet       = $consulta->veterinario ?? null;
+                                @endphp
                                 <tr class="table-row">
                                     <td class="py-3.5 pr-4">
                                         <div class="flex items-center gap-2.5">
-                                            <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=facearea&facepad=2&w=60&q=80"
-                                                class="w-8 h-8 rounded-xl object-cover" alt="Mel" />
-                                            <span class="text-sm font-semibold text-slate-800">Mel</span>
+                                            @if ($animal && $animal->foto)
+                                                <img src="{{ asset('storage/' . $animal->foto) }}"
+                                                    class="w-8 h-8 rounded-xl object-cover"
+                                                    alt="{{ $animal->nome }}" />
+                                            @else
+                                                <div class="w-8 h-8 rounded-xl bg-brand-light flex items-center justify-center flex-shrink-0">
+                                                    <i data-lucide="paw-print" class="w-4 h-4 text-brand"></i>
+                                                </div>
+                                            @endif
+                                            <span class="text-sm font-semibold text-slate-800">
+                                                {{ $animal->nome ?? '—' }}
+                                            </span>
                                         </div>
                                     </td>
                                     <td class="py-3.5 pr-4">
-                                        <p class="text-sm text-slate-700 font-medium">Dr. Rafael Costa</p>
-                                        <p class="text-xs text-slate-400">Clínico Geral</p>
+                                        <p class="text-sm text-slate-700 font-medium">{{ $vet->name ?? $consulta->nome_veterinario ?? '—' }}</p>
+                                        <p class="text-xs text-slate-400">{{ $consulta->especialidade ?? '' }}</p>
                                     </td>
                                     <td class="py-3.5 pr-4">
-                                        <p class="text-sm text-slate-700 font-medium">12 mai, 2025</p>
-                                        <p class="text-xs text-slate-400">14:30</p>
+                                        <p class="text-sm text-slate-700 font-medium">
+                                            {{ \Carbon\Carbon::parse($consulta->data)->isoFormat('D MMM, YYYY') }}
+                                        </p>
+                                        <p class="text-xs text-slate-400">
+                                            {{ \Carbon\Carbon::parse($consulta->data)->format('H:i') }}
+                                        </p>
                                     </td>
                                     <td class="py-3.5 pr-4">
-                                        <span
-                                            class="badge-online text-xs font-bold px-2.5 py-1 rounded-full">Online</span>
+                                        <span class="{{ $badgeCls }} text-xs font-bold px-2.5 py-1 rounded-full">
+                                            {{ $badgeTxt }}
                                     </td>
                                     <td class="py-3.5">
-                                        <button class="btn-ghost py-1.5 px-3 text-xs">Detalhes</button>
+                                        <a href="{{ route('consultas.show', $consulta->id) }}"
+                                            class="btn-ghost py-1.5 px-3 text-xs">Detalhes</a>
                                     </td>
                                 </tr>
-
-                                <!-- Row 2 -->
-                                <tr class="table-row">
-                                    <td class="py-3.5 pr-4">
-                                        <div class="flex items-center gap-2.5">
-                                            <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=facearea&facepad=2&w=60&q=80"
-                                                class="w-8 h-8 rounded-xl object-cover" alt="Thor" />
-                                            <span class="text-sm font-semibold text-slate-800">Thor</span>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="py-10 text-center">
+                                        <div class="flex flex-col items-center gap-2 text-slate-400">
+                                            <i data-lucide="calendar-x" class="w-8 h-8 text-slate-300"></i>
+                                            <p class="text-sm font-medium text-slate-500">Nenhuma consulta agendada</p>
+                                            <a href="{{ route('consultas.create') }}"
+                                                class="btn-primary py-1.5 px-4 text-xs mt-1 flex items-center gap-1.5">
+                                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agendar consulta
+                                            </a>
                                         </div>
                                     </td>
-                                    <td class="py-3.5 pr-4">
-                                        <p class="text-sm text-slate-700 font-medium">Dra. Camila Nunes</p>
-                                        <p class="text-xs text-slate-400">Ortopedia</p>
-                                    </td>
-                                    <td class="py-3.5 pr-4">
-                                        <p class="text-sm text-slate-700 font-medium">15 mai, 2025</p>
-                                        <p class="text-xs text-slate-400">09:00</p>
-                                    </td>
-                                    <td class="py-3.5 pr-4">
-                                        <span
-                                            class="badge-presencial text-xs font-bold px-2.5 py-1 rounded-full">Presencial</span>
-                                    </td>
-                                    <td class="py-3.5">
-                                        <button class="btn-ghost py-1.5 px-3 text-xs">Detalhes</button>
-                                    </td>
                                 </tr>
-
-                                <!-- Row 3 -->
-                                <tr class="table-row">
-                                    <td class="py-3.5 pr-4">
-                                        <div class="flex items-center gap-2.5">
-                                            <img src="https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?auto=format&fit=facearea&facepad=2&w=60&q=80"
-                                                class="w-8 h-8 rounded-xl object-cover" alt="Luna" />
-                                            <span class="text-sm font-semibold text-slate-800">Luna</span>
-                                        </div>
-                                    </td>
-                                    <td class="py-3.5 pr-4">
-                                        <p class="text-sm text-slate-700 font-medium">Dr. André Lima</p>
-                                        <p class="text-xs text-slate-400">Dermatologia</p>
-                                    </td>
-                                    <td class="py-3.5 pr-4">
-                                        <p class="text-sm text-slate-700 font-medium">18 mai, 2025</p>
-                                        <p class="text-xs text-slate-400">16:00</p>
-                                    </td>
-                                    <td class="py-3.5 pr-4">
-                                        <span
-                                            class="badge-online text-xs font-bold px-2.5 py-1 rounded-full">Online</span>
-                                    </td>
-                                    <td class="py-3.5">
-                                        <button class="btn-ghost py-1.5 px-3 text-xs">Detalhes</button>
-                                    </td>
-                                </tr>
+                                @endforelse
 
                             </tbody>
                         </table>
@@ -1022,87 +982,34 @@
                 <div class="card p-6">
                     <div class="flex items-center justify-between mb-5">
                         <h2 class="font-display text-base font-bold text-slate-900">Atividades</h2>
-                        <button class="text-xs text-brand font-semibold hover:underline">Ver tudo</button>
+                        <a href="{{ route('atendimentos.index') }}"
+                            class="text-xs text-brand font-semibold hover:underline">Ver tudo</a>
                     </div>
 
                     <div class="space-y-4">
 
-                        <!-- Activity 1 -->
+                        @forelse ($atividades as $atividade)
                         <div class="flex items-start gap-3">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-accent-light flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="syringe" class="w-4 h-4 text-accent"></i>
+                            <div class="w-9 h-9 rounded-xl {{ $atividade['cor'] }} flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i data-lucide="{{ $atividade['icone'] }}" class="w-4 h-4 {{ $atividade['cor_icone'] }}"></i>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-800">Vacina adicionada</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Antivírica V10 para <span
-                                        class="font-medium text-slate-700">Mel</span></p>
-                                <p class="text-xs text-slate-400 mt-1">Hoje · 10:24</p>
+                                <p class="text-sm font-semibold text-slate-800">{{ $atividade['titulo'] }}</p>
+                                <p class="text-xs text-slate-500 mt-0.5">{{ $atividade['descricao'] }}</p>
+                                <p class="text-xs text-slate-400 mt-1">
+                                    {{ \Carbon\Carbon::parse($atividade['data'])->diffForHumans() }}
+                                </p>
                             </div>
                         </div>
-
+                        @if (!$loop->last)
                         <div class="border-t border-slate-50"></div>
-
-                        <!-- Activity 2 -->
-                        <div class="flex items-start gap-3">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-brand-light flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="stethoscope" class="w-4 h-4 text-brand"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-800">Consulta realizada</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Retorno ortopedia — <span
-                                        class="font-medium text-slate-700">Thor</span></p>
-                                <p class="text-xs text-slate-400 mt-1">Ontem · 09:00</p>
-                            </div>
+                        @endif
+                        @empty
+                        <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
+                            <i data-lucide="activity" class="w-8 h-8 text-slate-200"></i>
+                            <p class="text-sm text-slate-400">Nenhuma atividade recente</p>
                         </div>
-
-                        <div class="border-t border-slate-50"></div>
-
-                        <!-- Activity 3 -->
-                        <div class="flex items-start gap-3">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-pink-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="paw-print" class="w-4 h-4 text-pink-400"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-800">Novo pet cadastrado</p>
-                                <p class="text-xs text-slate-500 mt-0.5"><span
-                                        class="font-medium text-slate-700">Luna</span> foi adicionada</p>
-                                <p class="text-xs text-slate-400 mt-1">03 mai · 18:42</p>
-                            </div>
-                        </div>
-
-                        <div class="border-t border-slate-50"></div>
-
-                        <!-- Activity 4 -->
-                        <div class="flex items-start gap-3">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="calendar-check" class="w-4 h-4 text-amber-500"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-800">Agendamento confirmado</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Online · Dr. Rafael Costa</p>
-                                <p class="text-xs text-slate-400 mt-1">02 mai · 14:10</p>
-                            </div>
-                        </div>
-
-                        <div class="border-t border-slate-50"></div>
-
-                        <!-- Activity 5 -->
-                        <div class="flex items-start gap-3">
-                            <div
-                                class="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="file-text" class="w-4 h-4 text-purple-400"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-800">Receita gerada</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Antiparasitário — <span
-                                        class="font-medium text-slate-700">Mel</span></p>
-                                <p class="text-xs text-slate-400 mt-1">28 abr · 11:00</p>
-                            </div>
-                        </div>
+                        @endforelse
 
                     </div>
                 </div>
@@ -1118,130 +1025,71 @@
                 <div class="flex items-center justify-between mb-5">
                     <div>
                         <h2 class="font-display text-lg font-bold text-slate-900">Clínicas Próximas</h2>
-                        <p class="text-sm text-slate-400 mt-0.5">Birigui e região · 8 clínicas encontradas</p>
+                        <p class="text-sm text-slate-400 mt-0.5">
+                            {{ $totalClinicas }} {{ $totalClinicas === 1 ? 'clínica encontrada' : 'clínicas encontradas' }}
+                        </p>
                     </div>
-                    <button class="btn-ghost py-1.5 px-3 text-xs flex items-center gap-1.5">
+                    <a href="{{ route('clinicas.index') }}" class="btn-ghost py-1.5 px-3 text-xs flex items-center gap-1.5">
                         <i data-lucide="map" class="w-3.5 h-3.5"></i> Ver mapa
-                    </button>
+                    </a>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-                    <!-- Clinic 1 -->
+                    @forelse ($clinicas as $clinica)
+                    @php
+                        $aberta    = $clinica->aberta_agora ?? null;
+                        $horario   = $clinica->horario_abertura ?? null;
+                        $distancia = isset($clinica->distancia) ? number_format($clinica->distancia, 1) . ' km' : null;
+                        $nota      = $clinica->nota ?? $clinica->avaliacao ?? null;
+                        $tipo      = $clinica->tipo ?? 'Clínica veterinária';
+                    @endphp
                     <div class="card p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
                         <div class="flex items-center gap-3 mb-4">
-                            <div
-                                class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-light to-accent-light flex items-center justify-center flex-shrink-0">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-light to-accent-light flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="building-2" class="w-6 h-6 text-brand"></i>
                             </div>
                             <div class="min-w-0">
-                                <p class="text-sm font-bold text-slate-900 truncate">VetCenter Plus</p>
-                                <p class="text-xs text-slate-400">Clínica geral</p>
+                                <p class="text-sm font-bold text-slate-900 truncate">{{ $clinica->nome }}</p>
+                                <p class="text-xs text-slate-400">{{ $tipo }}</p>
                             </div>
                         </div>
                         <div class="flex items-center justify-between mb-1">
                             <span class="flex items-center gap-1 text-xs text-slate-500">
-                                <i data-lucide="map-pin" class="w-3 h-3 text-brand"></i> 0.8 km
+                                <i data-lucide="map-pin" class="w-3 h-3 text-brand"></i>
+                                {{ $distancia ?? '—' }}
                             </span>
+                            @if ($nota)
                             <span class="flex items-center gap-1 text-xs font-semibold text-amber-500">
-                                <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i> 4.9
+                                <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i>
+                                {{ number_format($nota, 1) }}
                             </span>
+                            @endif
                         </div>
                         <div class="flex items-center gap-1 mb-4">
-                            <span class="online-dot" style="width:7px;height:7px;"></span>
-                            <span class="text-xs text-accent font-medium">Aberta agora</span>
+                            @if ($aberta === true)
+                                <span class="online-dot" style="width:7px;height:7px;"></span>
+                                <span class="text-xs text-accent font-medium">Aberta agora</span>
+                            @elseif ($horario)
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                <span class="text-xs text-amber-500 font-medium">Abre às {{ $horario }}</span>
+                            @else
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                                <span class="text-xs text-slate-400 font-medium">Horário não informado</span>
+                            @endif
                         </div>
-                        <button class="btn-primary w-full py-2 text-xs flex items-center justify-center gap-1.5">
+                        <a href="{{ route('clinicas.show', $clinica->id) }}"
+                            class="{{ $aberta ? 'btn-primary' : 'btn-ghost' }} w-full py-2 text-xs flex items-center justify-center gap-1.5">
                             <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Ver clínica
-                        </button>
+                        </a>
                     </div>
-
-                    <!-- Clinic 2 -->
-                    <div class="card p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div
-                                class="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-light to-brand-light flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="building-2" class="w-6 h-6 text-accent"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <p class="text-sm font-bold text-slate-900 truncate">Clínica Patas & Vidas</p>
-                                <p class="text-xs text-slate-400">Pequenos animais</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="flex items-center gap-1 text-xs text-slate-500">
-                                <i data-lucide="map-pin" class="w-3 h-3 text-brand"></i> 1.4 km
-                            </span>
-                            <span class="flex items-center gap-1 text-xs font-semibold text-amber-500">
-                                <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i> 4.7
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-1 mb-4">
-                            <span class="online-dot" style="width:7px;height:7px;"></span>
-                            <span class="text-xs text-accent font-medium">Aberta agora</span>
-                        </div>
-                        <button class="btn-primary w-full py-2 text-xs flex items-center justify-center gap-1.5">
-                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Ver clínica
-                        </button>
+                    @empty
+                    {{-- Placeholder quando não há clínicas --}}
+                    <div class="lg:col-span-4 sm:col-span-2 flex flex-col items-center justify-center py-12 text-center gap-2">
+                        <i data-lucide="building-2" class="w-10 h-10 text-slate-200"></i>
+                        <p class="text-sm font-medium text-slate-500">Nenhuma clínica cadastrada na região</p>
                     </div>
-
-                    <!-- Clinic 3 -->
-                    <div class="card p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div
-                                class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="building-2" class="w-6 h-6 text-amber-500"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <p class="text-sm font-bold text-slate-900 truncate">PetSaúde Hospital</p>
-                                <p class="text-xs text-slate-400">Hospital veterinário</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="flex items-center gap-1 text-xs text-slate-500">
-                                <i data-lucide="map-pin" class="w-3 h-3 text-brand"></i> 2.1 km
-                            </span>
-                            <span class="flex items-center gap-1 text-xs font-semibold text-amber-500">
-                                <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i> 4.8
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-1 mb-4">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                            <span class="text-xs text-amber-500 font-medium">Abre às 14h</span>
-                        </div>
-                        <button class="btn-ghost w-full py-2 text-xs flex items-center justify-center gap-1.5">
-                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Ver clínica
-                        </button>
-                    </div>
-
-                    <!-- Clinic 4 -->
-                    <div class="card p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div
-                                class="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="building-2" class="w-6 h-6 text-purple-400"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <p class="text-sm font-bold text-slate-900 truncate">AnimalMed Birigui</p>
-                                <p class="text-xs text-slate-400">Especialidades</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="flex items-center gap-1 text-xs text-slate-500">
-                                <i data-lucide="map-pin" class="w-3 h-3 text-brand"></i> 3.5 km
-                            </span>
-                            <span class="flex items-center gap-1 text-xs font-semibold text-amber-500">
-                                <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i> 4.6
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-1 mb-4">
-                            <span class="online-dot" style="width:7px;height:7px;"></span>
-                            <span class="text-xs text-accent font-medium">Aberta agora</span>
-                        </div>
-                        <button class="btn-primary w-full py-2 text-xs flex items-center justify-center gap-1.5">
-                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Ver clínica
-                        </button>
-                    </div>
+                    @endforelse
 
                 </div>
             </section>
@@ -1435,9 +1283,9 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const targets = {
-                        stat0: 3,
-                        stat1: 12,
-                        stat2: 8
+                        stat0: {{ $totalAnimais }},
+                        stat1: {{ $totalConsultas }},
+                        stat2: {{ $totalClinicas }}
                     };
                     Object.entries(targets).forEach(([id, val]) => {
                         const el = document.getElementById(id);
