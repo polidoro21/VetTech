@@ -108,7 +108,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth.custom'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
 // DEPOIS (com controller):
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
