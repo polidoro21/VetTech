@@ -84,6 +84,10 @@ class Animal extends Model
 
     public function getIdadeAttribute()
     {
+        if (!$this->data_nascimento) {
+            return null;
+        }
+
         return Carbon::parse($this->data_nascimento)->age;
     }
 }

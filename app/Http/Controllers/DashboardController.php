@@ -2,95 +2,83 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
 use App\Models\Animal;
 use App\Models\Atendimento;
+use App\Models\Clinica;
+use App\Models\Consulta;
+use App\Models\Vacina;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $userId = Auth::id() ?? 0;
+        $userId = Auth::id();
 
-        // ── Animais ────────────────────────────────────────────────
-        $animais      = Animal::where('id_usuario', $userId)->latest()->take(3)->get();
+        $animais = Animal::where('id_usuario', $userId)
+            ->latest()
+            ->take(4)
+            ->get();
+
         $totalAnimais = Animal::where('id_usuario', $userId)->count();
 
-        // ── Consultas ──────────────────────────────────────────────
-        // Carrega do model real quando a tabela existir; coleta vazia como fallback.
-        $consultas      = collect();
-        $totalConsultas = 0;
+        $consultas = Consulta::with(['animal', 'clinica'])
+            ->where('user_id', $userId)
+            ->where('data', '>=', now()->toDateString())
+            ->orderBy('data')
+            ->orderBy('hora')
+            ->take(5)
+            ->get();
 
-        if (Schema::hasTable('consultas')) {
-            $consultas = \App\Models\Consulta::where('id_usuario', $userId)
-                ->where('data', '>=', now())
-                ->orderBy('data')
-                ->take(5)
-                ->get();
+        $totalConsultas = Consulta::where('user_id', $userId)->count();
 
-            $totalConsultas = \App\Models\Consulta::where('id_usuario', $userId)->count();
-        }
+        $clinicas = Clinica::orderByRaw('distancia is null')
+            ->orderBy('distancia')
+            ->orderBy('nome')
+            ->take(4)
+            ->get();
 
-        // ── Clínicas ───────────────────────────────────────────────
-        $clinicas      = collect();
-        $totalClinicas = 0;
+        $totalClinicas = Clinica::count();
 
-        if (Schema::hasTable('clinicas')) {
-            $clinicas      = \App\Models\Clinica::orderBy('distancia')->take(4)->get();
-            $totalClinicas = \App\Models\Clinica::count();
-        }
-
-        // ── Vacinas recentes ───────────────────────────────────────
-        $vacinasRecentes = collect();
-
-        if (Schema::hasTable('vacinas')) {
-            $vacinasRecentes = \App\Models\Vacina::whereHas('animal', fn($q) => $q->where('id_usuario', $userId))
-                ->with('animal')
-                ->latest()
-                ->take(3)
-                ->get()
-                ->map(fn($v) => [
-                    'tipo'      => 'vacina',
-                    'titulo'    => 'Vacina adicionada',
-                    'descricao' => ($v->nome ?? 'Vacina') . ' para ' . ($v->animal->nome ?? ''),
-                    'data'      => $v->created_at,
-                    'icone'     => 'syringe',
-                    'cor'       => 'bg-accent-light',
-                    'cor_icone' => 'text-accent',
-                ]);
-        }
-
-        // ── Atendimentos recentes ──────────────────────────────────
-        $atendimentosRecentes = Atendimento::latest()
+        $vacinasRecentes = Vacina::with('animal')
+            ->whereHas('animal', fn ($query) => $query->where('id_usuario', $userId))
+            ->latest()
             ->take(3)
             ->get()
-            ->map(fn($a) => [
-                'tipo'      => 'atendimento',
-                'titulo'    => 'Atendimento realizado',
-                'descricao' => $a->descricao ?? 'Atendimento',
-                'data'      => $a->created_at,
-                'icone'     => 'stethoscope',
-                'cor'       => 'bg-brand-light',
+            ->map(fn (Vacina $vacina) => [
+                'titulo' => 'Vacina registrada',
+                'descricao' => $vacina->nome . ' para ' . ($vacina->animal->nome ?? 'pet'),
+                'data' => $vacina->created_at,
+                'icone' => 'syringe',
+                'cor' => 'bg-accent-light',
+                'cor_icone' => 'text-accent',
+            ]);
+
+        $atendimentosRecentes = Atendimento::with('animal')
+            ->whereHas('animal', fn ($query) => $query->where('id_usuario', $userId))
+            ->latest()
+            ->take(3)
+            ->get()
+            ->map(fn (Atendimento $atendimento) => [
+                'titulo' => 'Atendimento registrado',
+                'descricao' => ($atendimento->animal->nome ?? 'Pet') . ': ' . $atendimento->descricao,
+                'data' => $atendimento->created_at,
+                'icone' => 'stethoscope',
+                'cor' => 'bg-brand-light',
                 'cor_icone' => 'text-brand',
             ]);
 
-        // ── Animais recentes ───────────────────────────────────────
-        $animaisRecentes = Animal::where('id_usuario', $userId)
-            ->latest()
+        $animaisRecentes = $animais
             ->take(2)
-            ->get()
-            ->map(fn($a) => [
-                'tipo'      => 'pet',
-                'titulo'    => 'Novo pet cadastrado',
-                'descricao' => $a->nome . ' foi adicionado(a)',
-                'data'      => $a->created_at,
-                'icone'     => 'paw-print',
-                'cor'       => 'bg-pink-50',
-                'cor_icone' => 'text-pink-400',
+            ->map(fn (Animal $animal) => [
+                'titulo' => 'Novo pet cadastrado',
+                'descricao' => $animal->nome . ' foi adicionado(a)',
+                'data' => $animal->created_at,
+                'icone' => 'paw-print',
+                'cor' => 'bg-rose-50',
+                'cor_icone' => 'text-rose-400',
             ]);
 
-        // ── Atividades mescladas e ordenadas ───────────────────────
         $atividades = $vacinasRecentes
             ->concat($atendimentosRecentes)
             ->concat($animaisRecentes)

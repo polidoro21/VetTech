@@ -21,6 +21,17 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'tipo',
+        'phone',
+        'cpf',
+        'crmv',
+        'cnpj',
+        'cep',
+        'logradouro',
+        'numero',
+        'bairro',
+        'cidade',
+        'uf',
     ];
 
     /**
@@ -44,5 +55,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function animais()
+    {
+        return $this->hasMany(Animal::class, 'id_usuario');
+    }
+
+    public function consultas()
+    {
+        return $this->hasMany(Consulta::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
     }
 }

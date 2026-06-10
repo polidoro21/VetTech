@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
-    protected $fillable = ['usuario', 'mensagem'];
+    protected $fillable = ['user_id', 'usuario', 'mensagem'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

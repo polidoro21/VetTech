@@ -1,39 +1,36 @@
 @extends('layouts.dashboard')
 
+@section('title', 'VetTech - Chat')
+@section('page-title', 'Chat')
+@section('page-subtitle', 'Conversa com a equipe VetTech')
+
 @section('content')
-
-<h3>Chat com o Admin</h3>
-
-<div style="height:400px; overflow-y:auto; border:1px solid #ccc; padding:15px; background:#f5f5f5;">
-
-    @foreach($messages as $msg)
-
-        @if($msg->usuario == (session('usuario')['nome'] ?? ''))
-            <!-- MINHA MENSAGEM -->
-            <div style="text-align:right; margin-bottom:10px;">
-                <span style="background:#0d6efd; color:white; padding:8px 12px; border-radius:15px; display:inline-block;">
-                    {{ $msg->mensagem }}
-                </span>
-            </div>
-        @else
-            <!-- ADMIN -->
-            <div style="text-align:left; margin-bottom:10px;">
-                <span style="background:#e4e6eb; padding:8px 12px; border-radius:15px; display:inline-block;">
-                    <strong>{{ $msg->usuario }}:</strong> {{ $msg->mensagem }}
-                </span>
-            </div>
-        @endif
-
-    @endforeach
-
-</div>
-
-<form action="{{ route('chat.send') }}" method="POST" class="mt-3">
-    @csrf
-    <div class="d-flex">
-        <input type="text" name="mensagem" class="form-control" placeholder="Digite sua mensagem..." required>
-        <button class="btn btn-primary ms-2">Enviar</button>
+<div class="vt-card mx-auto flex max-w-4xl flex-col overflow-hidden">
+    <div class="border-b border-slate-100 p-5">
+        <h2 class="font-display text-lg font-bold text-slate-950">Mensagens</h2>
+        <p class="text-sm text-slate-400">Historico da sua conta</p>
     </div>
-</form>
 
+    <div class="max-h-[520px] min-h-[360px] space-y-4 overflow-y-auto bg-slate-50 p-5">
+        @forelse($messages as $message)
+            <div class="flex justify-end">
+                <div class="max-w-[80%] rounded-2xl rounded-br-md bg-brand px-4 py-3 text-white shadow-sm">
+                    <p class="text-sm">{{ $message->mensagem }}</p>
+                    <p class="mt-1 text-right text-[11px] font-semibold text-white/70">{{ $message->created_at->format('d/m/Y H:i') }}</p>
+                </div>
+            </div>
+        @empty
+            <div class="flex h-80 flex-col items-center justify-center text-center text-slate-400">
+                <i data-lucide="message-circle" class="mb-3 h-12 w-12"></i>
+                <p class="font-semibold">Nenhuma mensagem enviada ainda.</p>
+            </div>
+        @endforelse
+    </div>
+
+    <form action="{{ route('chat.send') }}" method="POST" class="flex flex-col gap-3 border-t border-slate-100 p-4 sm:flex-row">
+        @csrf
+        <input type="text" name="mensagem" class="vt-input flex-1" placeholder="Digite sua mensagem..." required>
+        <button class="vt-btn vt-btn-primary px-5 py-3" type="submit">Enviar</button>
+    </form>
+</div>
 @endsection

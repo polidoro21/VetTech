@@ -1,105 +1,58 @@
-@extends('layout')
+@extends('layouts.dashboard')
+
+@section('title', 'VetTech - Novo Atendimento')
+@section('page-title', 'Novo Atendimento')
+@section('page-subtitle', 'Registre um historico clinico do pet')
 
 @section('content')
-
-<h2 style="margin-bottom: 30px;">Cadastro de Atendimento</h2>
-
-@if(session('success'))
-    <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
-        {{ session('success') }}
-    </div>
-@endif
-
-<form action="{{ route('atendimentos.store') }}" method="POST" style="text-align: left; max-width: 500px; margin: 0 auto;">
-    @csrf
-
-    <label>Animal</label>
-    <select name="animal_id" required>
-        @foreach($animais as $animal)
-            <option value="{{ $animal->id }}">{{ $animal->nome }}</option>
-        @endforeach
-    </select>
-
-    <label>Data</label>
-    <input type="date" name="data" required>
-
-    <label>Descrição</label>
-    <textarea name="descricao" required></textarea>
-
-    <label>Valor</label>
-    <input type="number" step="0.01" name="valor" required>
-
-    <label>Observações</label>
-    <textarea name="observacoes"></textarea>
-
-    <button type="submit" class="btn-primary">Cadastrar Atendimento</button>
-</form>
-
-<hr style="margin: 50px 0;">
-
-<h2 style="margin-bottom: 20px;">Atendimentos Cadastrados</h2>
-
-@if($atendimentos->isEmpty())
-    <p>Nenhum atendimento cadastrado ainda.</p>
-@else
-    <table style="width: 100%; border-collapse: collapse; text-align: left;">
-        <thead>
-            <tr>
-                <th style="padding: 8px;">Animal</th>
-                <th style="padding: 8px;">Data</th>
-                <th style="padding: 8px;">Descrição</th>
-                <th style="padding: 8px;">Valor</th>
-                <th style="padding: 8px;">Observações</th>
-                <th style="padding: 8px;">Status</th>
-                <th style="padding: 8px;">Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($atendimentos as $at)
-            <tr>
-                <td style="padding: 8px;">{{ $at->animal->nome }}</td>
-                <td style="padding: 8px;">{{ $at->data }}</td>
-                <td style="padding: 8px;">{{ $at->descricao }}</td>
-                <td style="padding: 8px;">R$ {{ number_format($at->valor, 2, ',', '.') }}</td>
-                <td style="padding: 8px;">{{ $at->observacoes }}</td>
-
-                {{-- STATUS --}}
-                <td style="padding: 8px;">
-                    @if($at->status == 'nao_atendido')
-                        <span style="background: orange; color: white; padding: 5px 10px; border-radius: 5px;">
-                            Não atendido
-                        </span>
-                    @else
-                        <span style="background: green; color: white; padding: 5px 10px; border-radius: 5px;">
-                            Atendido
-                        </span>
-                    @endif
-                </td>
-
-                {{-- BOTÕES --}}
-                <td style="padding: 8px;">
-                    <form action="{{ route('atendimentos.status', $at->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-
-                        @if($at->status == 'nao_atendido')
-                            <input type="hidden" name="status" value="atendido">
-                            <button style="background: green; color: white; border: none; padding: 5px 10px; border-radius: 5px;">
-                                ✔ Já foi atendido
-                            </button>
-                        @else
-                            <input type="hidden" name="status" value="nao_atendido">
-                            <button style="background: orange; color: white; border: none; padding: 5px 10px; border-radius: 5px;">
-                                ↩ Não atendido
-                            </button>
-                        @endif
-                    </form>
-                </td>
-
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-@endif
-
+<div class="vt-card max-w-3xl p-6">
+    @if($animais->isEmpty())
+        <div class="rounded-2xl border border-dashed border-slate-300 p-8 text-center">
+            <p class="font-bold text-slate-700">Cadastre um pet antes de registrar atendimentos.</p>
+            <a href="{{ route('animais.create') }}" class="mt-4 inline-flex vt-btn vt-btn-primary px-4 py-2">Cadastrar pet</a>
+        </div>
+    @else
+        <form action="{{ route('atendimentos.store') }}" method="POST" class="space-y-5">
+            @csrf
+            <div class="grid gap-5 md:grid-cols-2">
+                <div>
+                    <label class="vt-label" for="animal_id">Pet</label>
+                    <select id="animal_id" name="animal_id" class="vt-input" required>
+                        <option value="">Selecione</option>
+                        @foreach($animais as $animal)
+                            <option value="{{ $animal->id }}" @selected((string) old('animal_id', request('animal_id')) === (string) $animal->id)>{{ $animal->nome }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="vt-label" for="data">Data</label>
+                    <input id="data" name="data" type="date" class="vt-input" value="{{ old('data') }}" required>
+                </div>
+                <div>
+                    <label class="vt-label" for="valor">Valor</label>
+                    <input id="valor" name="valor" type="number" step="0.01" min="0" class="vt-input" value="{{ old('valor') }}" required>
+                </div>
+                <div>
+                    <label class="vt-label" for="status">Status</label>
+                    <select id="status" name="status" class="vt-input">
+                        <option value="nao_atendido" @selected(old('status') === 'nao_atendido')>Nao atendido</option>
+                        <option value="atendido" @selected(old('status') === 'atendido')>Atendido</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="vt-label" for="descricao">Descricao</label>
+                    <textarea id="descricao" name="descricao" class="vt-input min-h-28" required>{{ old('descricao') }}</textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="vt-label" for="observacoes">Observacoes</label>
+                    <textarea id="observacoes" name="observacoes" class="vt-input min-h-24">{{ old('observacoes') }}</textarea>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-3 pt-2">
+                <button type="submit" class="vt-btn vt-btn-primary px-5 py-3">Salvar atendimento</button>
+                <a href="{{ route('atendimentos.index') }}" class="vt-btn vt-btn-ghost px-5 py-3">Cancelar</a>
+            </div>
+        </form>
+    @endif
+</div>
 @endsection

@@ -10,7 +10,12 @@ class Atendimento extends Model
     use HasFactory;
 
     protected $fillable = [
-        'animal_id', 'data', 'descricao', 'valor', 'observacoes'
+        'animal_id', 'data', 'descricao', 'valor', 'observacoes', 'status'
+    ];
+
+    protected $casts = [
+        'data' => 'date',
+        'valor' => 'decimal:2',
     ];
 
     // Relacionamento com Animal

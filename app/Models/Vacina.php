@@ -13,6 +13,11 @@ class Vacina extends Model
         'proxima_dose'
     ];
 
+    protected $casts = [
+        'data_aplicacao' => 'date',
+        'proxima_dose' => 'date',
+    ];
+
     public function animal()
     {
         return $this->belongsTo(Animal::class);
