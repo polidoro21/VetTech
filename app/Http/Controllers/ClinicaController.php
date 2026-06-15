@@ -12,6 +12,7 @@ class ClinicaController extends Controller
         $busca = $request->string('busca')->toString();
 
         $clinicas = Clinica::query()
+            ->approved()
             ->when($busca !== '', function ($query) use ($busca) {
                 $query->where(function ($inner) use ($busca) {
                     $inner->where('nome', 'like', "%{$busca}%")
@@ -35,7 +36,7 @@ class ClinicaController extends Controller
 
     public function show($id)
     {
-        $clinica = Clinica::findOrFail($id);
+        $clinica = Clinica::approved()->findOrFail($id);
 
         return view('clinicas.show', compact('clinica'));
     }

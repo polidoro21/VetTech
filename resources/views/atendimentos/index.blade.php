@@ -2,71 +2,68 @@
 
 @section('title', 'VetTech - Atendimentos')
 @section('page-title', 'Atendimentos')
-@section('page-subtitle', 'Historico de atendimentos realizados ou pendentes')
+@section('page-subtitle', 'Fila, salas em andamento e resultados do seu pet')
 
 @section('content')
 <div class="space-y-5">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h2 class="font-display text-lg font-bold text-slate-950">Historico</h2>
+            <h2 class="font-display text-lg font-bold text-slate-950">Historico de atendimentos</h2>
             <p class="text-sm text-slate-400">{{ $atendimentos->count() }} atendimento(s)</p>
         </div>
         <a href="{{ route('atendimentos.create') }}" class="vt-btn vt-btn-primary px-4 py-2">
-            <i data-lucide="plus" class="h-4 w-4"></i> Novo atendimento
+            <i data-lucide="plus" class="h-4 w-4"></i> Solicitar atendimento
         </a>
     </div>
 
-    <div class="vt-card overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200 text-sm">
-                <thead class="bg-slate-50 text-left text-xs font-extrabold uppercase tracking-wide text-slate-400">
-                    <tr>
-                        <th class="px-5 py-3">Pet</th>
-                        <th class="px-5 py-3">Data</th>
-                        <th class="px-5 py-3">Descricao</th>
-                        <th class="px-5 py-3">Valor</th>
-                        <th class="px-5 py-3">Status</th>
-                        <th class="px-5 py-3 text-right">Acoes</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($atendimentos as $atendimento)
-                        <tr>
-                            <td class="px-5 py-4 font-bold text-slate-900">{{ $atendimento->animal->nome ?? 'Pet' }}</td>
-                            <td class="px-5 py-4">{{ \Carbon\Carbon::parse($atendimento->data)->format('d/m/Y') }}</td>
-                            <td class="px-5 py-4">{{ $atendimento->descricao }}</td>
-                            <td class="px-5 py-4">R$ {{ number_format($atendimento->valor, 2, ',', '.') }}</td>
-                            <td class="px-5 py-4">
-                                <span class="rounded-full px-3 py-1 text-xs font-bold {{ $atendimento->status === 'atendido' ? 'bg-accent-light text-accent' : 'bg-warn-light text-warn' }}">
-                                    {{ $atendimento->status === 'atendido' ? 'Atendido' : 'Nao atendido' }}
-                                </span>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex flex-wrap justify-end gap-2">
-                                    <form method="POST" action="{{ route('atendimentos.status', $atendimento->id) }}">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="{{ $atendimento->status === 'atendido' ? 'nao_atendido' : 'atendido' }}">
-                                        <button type="submit" class="vt-btn vt-btn-ghost px-3 py-2 text-xs">
-                                            {{ $atendimento->status === 'atendido' ? 'Marcar pendente' : 'Marcar atendido' }}
-                                        </button>
-                                    </form>
-                                    <form method="POST" action="{{ route('atendimentos.destroy', $atendimento->id) }}" onsubmit="return confirm('Excluir este atendimento?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="vt-btn vt-btn-danger px-3 py-2 text-xs">Excluir</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-5 py-10 text-center text-sm font-semibold text-slate-500">Nenhum atendimento cadastrado.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    <div class="grid gap-4">
+        @forelse($atendimentos as $atendimento)
+            @php
+                $statusClass = match($atendimento->status) {
+                    'aguardando' => 'bg-warn-light text-warn',
+                    'em_atendimento' => 'bg-brand-light text-brand',
+                    'finalizado' => 'bg-accent-light text-accent',
+                    'cancelado' => 'bg-slate-100 text-slate-500',
+                    default => 'bg-slate-100 text-slate-500',
+                };
+            @endphp
+            <article class="vt-card p-5">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 class="text-lg font-extrabold text-slate-950">{{ $atendimento->animal->nome ?? 'Pet removido' }}</h3>
+                            <span class="rounded-full px-3 py-1 text-xs font-bold {{ $statusClass }}">{{ str_replace('_', ' ', $atendimento->status) }}</span>
+                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">{{ ucfirst($atendimento->modo) }}</span>
+                        </div>
+                        <p class="mt-2 text-sm text-slate-500">
+                            Criado em {{ $atendimento->created_at->format('d/m/Y H:i') }}
+                            @if($atendimento->veterinario)
+                                · Vet: {{ $atendimento->veterinario->name }}
+                            @endif
+                        </p>
+                        <p class="mt-2 max-w-3xl text-sm text-slate-700">{{ $atendimento->descricao }}</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="{{ route('atendimentos.show', $atendimento) }}" class="vt-btn vt-btn-primary px-4 py-2 text-sm">
+                            {{ $atendimento->status === 'finalizado' ? 'Ver resultado' : 'Entrar' }}
+                        </a>
+                        @if(in_array($atendimento->status, ['aguardando', 'em_atendimento'], true))
+                            <form method="POST" action="{{ route('atendimentos.cancel', $atendimento) }}" onsubmit="return confirm('Cancelar este atendimento?')">
+                                @csrf
+                                <button type="submit" class="vt-btn vt-btn-danger px-4 py-2 text-sm">Cancelar</button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            </article>
+        @empty
+            <div class="vt-card p-10 text-center">
+                <i data-lucide="messages-square" class="mx-auto mb-3 h-12 w-12 text-slate-300"></i>
+                <h2 class="font-display text-xl font-bold text-slate-950">Nenhum atendimento solicitado</h2>
+                <p class="mt-1 text-sm text-slate-500">Quando precisar, solicite atendimento por chat ou video para entrar na fila.</p>
+                <a href="{{ route('atendimentos.create') }}" class="mt-5 inline-flex vt-btn vt-btn-primary px-5 py-3">Solicitar agora</a>
+            </div>
+        @endforelse
     </div>
 </div>
 @endsection

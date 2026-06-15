@@ -38,9 +38,9 @@
     <section class="vt-card p-6">
         <h3 class="font-display text-lg font-bold text-slate-950">Atalhos</h3>
         <div class="mt-4 grid gap-3">
-            <a href="{{ route('consultas.create', ['animal_id' => $animal->id]) }}" class="vt-btn vt-btn-primary px-4 py-3">Agendar consulta</a>
+            <a href="{{ route('atendimentos.create', ['animal_id' => $animal->id]) }}" class="vt-btn vt-btn-primary px-4 py-3">Solicitar atendimento</a>
             <a href="{{ route('vacinas.index') }}" class="vt-btn vt-btn-ghost px-4 py-3">Carteirinha de vacina</a>
-            <a href="{{ route('atendimentos.create', ['animal_id' => $animal->id]) }}" class="vt-btn vt-btn-ghost px-4 py-3">Registrar atendimento</a>
+            <a href="{{ route('atendimentos.index') }}" class="vt-btn vt-btn-ghost px-4 py-3">Historico de atendimentos</a>
         </div>
     </section>
 </div>

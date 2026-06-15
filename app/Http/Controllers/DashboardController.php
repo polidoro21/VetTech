@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Animal;
 use App\Models\Atendimento;
 use App\Models\Clinica;
-use App\Models\Consulta;
 use App\Models\Vacina;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,6 +12,20 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+
+        if ($user->tipo === 'admin') {
+            return redirect()->route('admin.clinicas.index');
+        }
+
+        if ($user->tipo === 'vet') {
+            return redirect()->route('vet.atendimentos.index');
+        }
+
+        if ($user->tipo === 'clinic') {
+            return redirect()->route('clinicas.profile');
+        }
+
         $userId = Auth::id();
 
         $animais = Animal::where('id_usuario', $userId)
@@ -22,23 +35,25 @@ class DashboardController extends Controller
 
         $totalAnimais = Animal::where('id_usuario', $userId)->count();
 
-        $consultas = Consulta::with(['animal', 'clinica'])
+        $atendimentos = Atendimento::with(['animal', 'veterinario'])
             ->where('user_id', $userId)
-            ->where('data', '>=', now()->toDateString())
-            ->orderBy('data')
-            ->orderBy('hora')
+            ->latest()
             ->take(5)
             ->get();
 
-        $totalConsultas = Consulta::where('user_id', $userId)->count();
+        $totalAtendimentos = Atendimento::where('user_id', $userId)->count();
+        $atendimentosAbertos = Atendimento::where('user_id', $userId)
+            ->whereIn('status', ['aguardando', 'em_atendimento'])
+            ->count();
 
-        $clinicas = Clinica::orderByRaw('distancia is null')
+        $clinicas = Clinica::approved()
+            ->orderByRaw('distancia is null')
             ->orderBy('distancia')
             ->orderBy('nome')
             ->take(4)
             ->get();
 
-        $totalClinicas = Clinica::count();
+        $totalClinicas = Clinica::approved()->count();
 
         $vacinasRecentes = Vacina::with('animal')
             ->whereHas('animal', fn ($query) => $query->where('id_usuario', $userId))
@@ -55,12 +70,12 @@ class DashboardController extends Controller
             ]);
 
         $atendimentosRecentes = Atendimento::with('animal')
-            ->whereHas('animal', fn ($query) => $query->where('id_usuario', $userId))
+            ->where('user_id', $userId)
             ->latest()
             ->take(3)
             ->get()
             ->map(fn (Atendimento $atendimento) => [
-                'titulo' => 'Atendimento registrado',
+                'titulo' => 'Atendimento ' . str_replace('_', ' ', $atendimento->status),
                 'descricao' => ($atendimento->animal->nome ?? 'Pet') . ': ' . $atendimento->descricao,
                 'data' => $atendimento->created_at,
                 'icone' => 'stethoscope',
@@ -89,8 +104,9 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'animais',
             'totalAnimais',
-            'consultas',
-            'totalConsultas',
+            'atendimentos',
+            'totalAtendimentos',
+            'atendimentosAbertos',
             'clinicas',
             'totalClinicas',
             'atividades'

@@ -36,6 +36,8 @@
         .vt-btn { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; border-radius: 12px; font-weight: 700; transition: .18s ease; }
         .vt-btn-primary { background: #2563EB; color: #fff; }
         .vt-btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .vt-btn-accent { background: #10B981; color: #fff; }
+        .vt-btn-accent:hover { background: #059669; transform: translateY(-1px); }
         .vt-btn-ghost { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
         .vt-btn-ghost:hover { background: #f1f5f9; }
         .vt-btn-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
@@ -50,7 +52,15 @@
 <body class="text-slate-800 antialiased">
     @php
         $user = auth()->user();
-        $navConsultas = \App\Models\Consulta::where('user_id', auth()->id())->where('data', '>=', now()->toDateString())->count();
+        $roleLabel = [
+            'admin' => 'Administracao',
+            'vet' => 'Area veterinaria',
+            'clinic' => 'Area da clinica',
+            'tutor' => 'Area do cliente',
+        ][$user->tipo ?? 'tutor'] ?? 'Area VetTech';
+        $navAtendimentos = $user?->tipo === 'tutor'
+            ? \App\Models\Atendimento::where('user_id', auth()->id())->whereIn('status', ['aguardando', 'em_atendimento'])->count()
+            : 0;
     @endphp
 
     <div id="sidebarOverlay" class="fixed inset-0 z-30 hidden bg-slate-950/45 lg:hidden"></div>
@@ -63,39 +73,45 @@
                 </div>
                 <div>
                     <p class="font-display text-lg font-bold text-slate-950">VetTech</p>
-                    <p class="text-xs font-semibold text-slate-400">Area do cliente</p>
+                    <p class="text-xs font-semibold text-slate-400">{{ $roleLabel }}</p>
                 </div>
             </div>
 
             <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
                 <p class="px-3 pb-2 text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Principal</p>
-                <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <i data-lucide="layout-dashboard" class="nav-icon"></i> Dashboard
-                </a>
-                <a href="{{ route('animais.index') }}" class="nav-item {{ request()->routeIs('animais.*') ? 'active' : '' }}">
-                    <i data-lucide="paw-print" class="nav-icon"></i> Meus Pets
-                </a>
-                <a href="{{ route('consultas.index') }}" class="nav-item {{ request()->routeIs('consultas.*') ? 'active' : '' }}">
-                    <i data-lucide="calendar-days" class="nav-icon"></i> Consultas
-                    @if($navConsultas > 0)
-                        <span class="ml-auto rounded-full bg-brand px-2 py-0.5 text-[11px] text-white">{{ $navConsultas }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('telemedicina.index') }}" class="nav-item {{ request()->routeIs('telemedicina.*') ? 'active' : '' }}">
-                    <i data-lucide="video" class="nav-icon"></i> Telemedicina
-                </a>
-                <a href="{{ route('clinicas.index') }}" class="nav-item {{ request()->routeIs('clinicas.*') ? 'active' : '' }}">
-                    <i data-lucide="building-2" class="nav-icon"></i> Clinicas
-                </a>
-                <a href="{{ route('atendimentos.index') }}" class="nav-item {{ request()->routeIs('atendimentos.*') ? 'active' : '' }}">
-                    <i data-lucide="clipboard-list" class="nav-icon"></i> Atendimentos
-                </a>
-                <a href="{{ route('vacinas.index') }}" class="nav-item {{ request()->routeIs('vacinas.*') ? 'active' : '' }}">
-                    <i data-lucide="syringe" class="nav-icon"></i> Carteirinha
-                </a>
-                <a href="{{ route('chat') }}" class="nav-item {{ request()->routeIs('chat') ? 'active' : '' }}">
-                    <i data-lucide="message-circle" class="nav-icon"></i> Chat
-                </a>
+
+                @if($user->tipo === 'admin')
+                    <a href="{{ route('admin.clinicas.index') }}" class="nav-item {{ request()->routeIs('admin.clinicas.*') ? 'active' : '' }}">
+                        <i data-lucide="shield-check" class="nav-icon"></i> Aprovacoes
+                    </a>
+                @elseif($user->tipo === 'vet')
+                    <a href="{{ route('vet.atendimentos.index') }}" class="nav-item {{ request()->routeIs('vet.atendimentos.*') ? 'active' : '' }}">
+                        <i data-lucide="stethoscope" class="nav-icon"></i> Sala de espera
+                    </a>
+                @elseif($user->tipo === 'clinic')
+                    <a href="{{ route('clinicas.profile') }}" class="nav-item {{ request()->routeIs('clinicas.profile*') ? 'active' : '' }}">
+                        <i data-lucide="building-2" class="nav-icon"></i> Minha clinica
+                    </a>
+                @else
+                    <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i data-lucide="layout-dashboard" class="nav-icon"></i> Dashboard
+                    </a>
+                    <a href="{{ route('animais.index') }}" class="nav-item {{ request()->routeIs('animais.*') ? 'active' : '' }}">
+                        <i data-lucide="paw-print" class="nav-icon"></i> Meus Pets
+                    </a>
+                    <a href="{{ route('atendimentos.index') }}" class="nav-item {{ request()->routeIs('atendimentos.*') ? 'active' : '' }}">
+                        <i data-lucide="messages-square" class="nav-icon"></i> Atendimentos
+                        @if($navAtendimentos > 0)
+                            <span class="ml-auto rounded-full bg-brand px-2 py-0.5 text-[11px] text-white">{{ $navAtendimentos }}</span>
+                        @endif
+                    </a>
+                    <a href="{{ route('clinicas.index') }}" class="nav-item {{ request()->routeIs('clinicas.index', 'clinicas.buscar', 'clinicas.show') ? 'active' : '' }}">
+                        <i data-lucide="building-2" class="nav-icon"></i> Clinicas
+                    </a>
+                    <a href="{{ route('vacinas.index') }}" class="nav-item {{ request()->routeIs('vacinas.*') ? 'active' : '' }}">
+                        <i data-lucide="syringe" class="nav-icon"></i> Carteirinha
+                    </a>
+                @endif
             </nav>
 
             <div class="border-t border-slate-100 p-4">

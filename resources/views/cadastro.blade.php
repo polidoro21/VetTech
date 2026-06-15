@@ -36,7 +36,7 @@
 </head>
 
 <body class="min-h-screen text-slate-800 antialiased">
-    @php($tipoAtual = old('tipo', 'tutor'))
+    @php($tipoAtual = in_array(old('tipo', request('tipo', 'tutor')), ['tutor', 'vet'], true) ? old('tipo', request('tipo', 'tutor')) : 'tutor')
 
     <main class="grid min-h-screen lg:grid-cols-[.9fr_1.1fr]">
         <section class="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
@@ -48,8 +48,8 @@
             </a>
             <div class="max-w-md">
                 <p class="mb-3 inline-flex rounded-full bg-white/10 px-3 py-1 text-sm font-bold text-accent">Cadastro gratuito</p>
-                <h1 class="font-display text-4xl font-extrabold leading-tight">Cuidado conectado para pets, tutores e clinicas.</h1>
-                <p class="mt-5 text-lg text-slate-300">Crie sua conta para gerenciar animais, consultas, vacinas, telemedicina e historico de atendimentos.</p>
+                <h1 class="font-display text-4xl font-extrabold leading-tight">Cuidado conectado para tutores e veterinarios.</h1>
+                <p class="mt-5 text-lg text-slate-300">Crie sua conta para gerenciar pets, solicitar atendimento ou atender tutores na sala de espera.</p>
             </div>
             <p class="text-sm text-slate-400">Dados protegidos e acesso imediato apos o login.</p>
         </section>
@@ -81,7 +81,7 @@
 
                     <div>
                         <p class="mb-3 text-sm font-bold text-slate-700">Voce e...</p>
-                        <div class="grid gap-3 sm:grid-cols-3">
+                        <div class="grid gap-3 sm:grid-cols-2">
                             <button type="button" data-type="tutor" class="type-card rounded-2xl p-4 text-center {{ $tipoAtual === 'tutor' ? 'selected' : '' }}">
                                 <i data-lucide="heart" class="mx-auto mb-2 h-6 w-6 text-brand"></i>
                                 <span class="text-sm font-bold">Tutor</span>
@@ -89,10 +89,6 @@
                             <button type="button" data-type="vet" class="type-card rounded-2xl p-4 text-center {{ $tipoAtual === 'vet' ? 'selected' : '' }}">
                                 <i data-lucide="stethoscope" class="mx-auto mb-2 h-6 w-6 text-brand"></i>
                                 <span class="text-sm font-bold">Veterinario</span>
-                            </button>
-                            <button type="button" data-type="clinic" class="type-card rounded-2xl p-4 text-center {{ $tipoAtual === 'clinic' ? 'selected' : '' }}">
-                                <i data-lucide="building-2" class="mx-auto mb-2 h-6 w-6 text-brand"></i>
-                                <span class="text-sm font-bold">Clinica</span>
                             </button>
                         </div>
                     </div>
@@ -138,13 +134,6 @@
                             </div>
                         </div>
 
-                        <div id="cnpjWrapper" class="sm:col-span-2">
-                            <label class="mb-1.5 block text-sm font-bold text-slate-700" for="cnpj">CNPJ</label>
-                            <div class="relative">
-                                <i data-lucide="landmark" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
-                                <input id="cnpj" name="cnpj" class="input-field" value="{{ old('cnpj') }}" placeholder="00.000.000/0000-00" inputmode="numeric">
-                            </div>
-                        </div>
                     </div>
 
                     <div class="grid gap-4 sm:grid-cols-6">
@@ -217,26 +206,20 @@
         const typeInput = document.getElementById('userType');
         const cpfWrapper = document.getElementById('cpfWrapper');
         const crmvWrapper = document.getElementById('crmvWrapper');
-        const cnpjWrapper = document.getElementById('cnpjWrapper');
         const cpfInput = document.getElementById('cpf');
         const crmvInput = document.getElementById('crmv');
-        const cnpjInput = document.getElementById('cnpj');
 
         function updateType(type) {
             typeInput.value = type;
             typeCards.forEach(card => card.classList.toggle('selected', card.dataset.type === type));
-            const showCpf = type !== 'clinic';
+            const showCpf = true;
             const showCrmv = type === 'vet';
-            const showCnpj = type === 'clinic';
             cpfWrapper.classList.toggle('hidden', !showCpf);
             crmvWrapper.classList.toggle('hidden', !showCrmv);
-            cnpjWrapper.classList.toggle('hidden', !showCnpj);
             cpfInput.disabled = !showCpf;
             crmvInput.disabled = !showCrmv;
-            cnpjInput.disabled = !showCnpj;
             cpfInput.required = showCpf;
             crmvInput.required = showCrmv;
-            cnpjInput.required = showCnpj;
         }
 
         typeCards.forEach(card => card.addEventListener('click', () => updateType(card.dataset.type)));
@@ -262,15 +245,6 @@
             return v;
         }
 
-        function maskCnpj(value) {
-            const v = onlyDigits(value, 14);
-            if (v.length > 12) return `${v.slice(0, 2)}.${v.slice(2, 5)}.${v.slice(5, 8)}/${v.slice(8, 12)}-${v.slice(12)}`;
-            if (v.length > 8) return `${v.slice(0, 2)}.${v.slice(2, 5)}.${v.slice(5, 8)}/${v.slice(8)}`;
-            if (v.length > 5) return `${v.slice(0, 2)}.${v.slice(2, 5)}.${v.slice(5)}`;
-            if (v.length > 2) return `${v.slice(0, 2)}.${v.slice(2)}`;
-            return v;
-        }
-
         function maskCep(value) {
             const v = onlyDigits(value, 8);
             return v.length > 5 ? `${v.slice(0, 5)}-${v.slice(5)}` : v;
@@ -280,7 +254,6 @@
         const cep = document.getElementById('cep');
         phone.addEventListener('input', () => phone.value = maskPhone(phone.value));
         cpfInput.addEventListener('input', () => cpfInput.value = maskCpf(cpfInput.value));
-        cnpjInput.addEventListener('input', () => cnpjInput.value = maskCnpj(cnpjInput.value));
         cep.addEventListener('input', () => cep.value = maskCep(cep.value));
         crmvInput.addEventListener('input', () => {
             let v = crmvInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
@@ -289,7 +262,6 @@
 
         phone.value = maskPhone(phone.value);
         cpfInput.value = maskCpf(cpfInput.value);
-        cnpjInput.value = maskCnpj(cnpjInput.value);
         cep.value = maskCep(cep.value);
 
         cep.addEventListener('blur', async () => {

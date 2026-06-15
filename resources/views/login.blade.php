@@ -171,15 +171,15 @@
                 </h1>
 
                 <p class="text-white/75 text-base xl:text-lg leading-relaxed max-w-sm">
-                    Conecte-se a clínicas, agende consultas e acesse telemedicina veterinária em minutos — tudo em um só lugar.
+                    Conecte-se a veterinarios disponiveis por atendimento em chat ou video, com historico salvo para seu pet.
                 </p>
 
                 <div class="flex flex-wrap gap-3 pt-2">
                     <span class="flex items-center gap-1.5 bg-white/10 border border-white/20 text-white/90 text-sm px-3 py-1.5 rounded-lg">
-                        <i data-lucide="video" class="w-3.5 h-3.5"></i> Telemedicina
+                        <i data-lucide="messages-square" class="w-3.5 h-3.5"></i> Atendimento
                     </span>
                     <span class="flex items-center gap-1.5 bg-white/10 border border-white/20 text-white/90 text-sm px-3 py-1.5 rounded-lg">
-                        <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i> Agendamento online
+                        <i data-lucide="file-heart" class="w-3.5 h-3.5"></i> Receita e anotacoes
                     </span>
                     <span class="flex items-center gap-1.5 bg-white/10 border border-white/20 text-white/90 text-sm px-3 py-1.5 rounded-lg">
                         <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Clínicas próximas

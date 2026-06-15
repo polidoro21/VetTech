@@ -2,7 +2,7 @@
 
 @section('title', 'VetTech - Clinicas')
 @section('page-title', 'Clinicas')
-@section('page-subtitle', 'Busque locais para atendimento presencial ou online')
+@section('page-subtitle', 'Busque clinicas aprovadas pela administracao')
 
 @section('content')
 <div class="space-y-5">
@@ -10,7 +10,7 @@
         <div class="flex flex-col gap-3 md:flex-row">
             <div class="flex-1">
                 <label class="vt-label" for="busca">Buscar por nome, cidade, bairro ou tipo</label>
-                <input id="busca" name="busca" class="vt-input" value="{{ $busca ?? '' }}" placeholder="Ex: Paulista, online, emergencia">
+                <input id="busca" name="busca" class="vt-input" value="{{ $busca ?? '' }}" placeholder="Ex: Paulista, emergencia, centro">
             </div>
             <div class="flex items-end">
                 <button class="vt-btn vt-btn-primary w-full px-5 py-3 md:w-auto" type="submit">
@@ -34,21 +34,21 @@
                 </div>
 
                 <div class="mt-4 space-y-2 text-sm text-slate-600">
-                    <p class="flex gap-2"><i data-lucide="map-pin" class="mt-0.5 h-4 w-4 text-brand"></i> {{ $clinica->endereco_completo ?: 'Atendimento online' }}</p>
+                    <p class="flex gap-2"><i data-lucide="map-pin" class="mt-0.5 h-4 w-4 text-brand"></i> {{ $clinica->endereco_completo ?: 'Endereco nao informado' }}</p>
                     <p class="flex gap-2"><i data-lucide="phone" class="mt-0.5 h-4 w-4 text-brand"></i> {{ $clinica->telefone ?: 'Telefone nao informado' }}</p>
                     <p class="flex gap-2"><i data-lucide="star" class="mt-0.5 h-4 w-4 text-amber-500"></i> Nota {{ $clinica->nota ?? '-' }} {{ $clinica->distancia !== null ? '- '.$clinica->distancia.' km' : '' }}</p>
                 </div>
 
                 <div class="mt-5 flex gap-2">
                     <a href="{{ route('clinicas.show', $clinica->id) }}" class="vt-btn vt-btn-ghost flex-1 px-3 py-2 text-sm">Detalhes</a>
-                    <a href="{{ route('consultas.create', ['clinica_id' => $clinica->id, 'tipo' => $clinica->telemedicina ? 'online' : 'presencial']) }}" class="vt-btn vt-btn-primary flex-1 px-3 py-2 text-sm">Agendar</a>
+                    <a href="{{ route('atendimentos.create') }}" class="vt-btn vt-btn-primary flex-1 px-3 py-2 text-sm">Atendimento</a>
                 </div>
             </article>
         @empty
             <div class="vt-card col-span-full p-10 text-center">
                 <i data-lucide="building-2" class="mx-auto mb-3 h-12 w-12 text-slate-300"></i>
                 <h2 class="font-display text-xl font-bold text-slate-950">Nenhuma clinica encontrada</h2>
-                <p class="mt-1 text-sm text-slate-500">Tente buscar por outro termo.</p>
+                <p class="mt-1 text-sm text-slate-500">A busca mostra apenas clinicas aprovadas pelo administrador.</p>
             </div>
         @endforelse
     </div>

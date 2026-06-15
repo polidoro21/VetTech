@@ -3,19 +3,46 @@
 namespace Tests\Feature;
 
 use App\Models\Animal;
+use App\Models\Atendimento;
 use App\Models\Clinica;
-use App\Models\Consulta;
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CustomerModulesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_authenticated_dashboard_and_main_pages_render(): void
+    public function test_role_based_login_redirects(): void
     {
-        $user = User::factory()->create();
+        foreach ([
+            'tutor' => route('dashboard', absolute: false),
+            'vet' => route('vet.atendimentos.index', absolute: false),
+            'clinic' => route('clinicas.profile', absolute: false),
+            'admin' => route('admin.clinicas.index', absolute: false),
+        ] as $tipo => $path) {
+            User::factory()->create([
+                'tipo' => $tipo,
+                'email' => "{$tipo}@example.com",
+                'password' => Hash::make('password123'),
+            ]);
+
+            $this->post(route('login.post'), [
+                'email' => "{$tipo}@example.com",
+                'password' => 'password123',
+            ])->assertRedirect($path);
+
+            $this->post(route('logout'));
+        }
+    }
+
+    public function test_customer_pages_render_and_legacy_routes_redirect(): void
+    {
+        $user = User::factory()->create(['tipo' => 'tutor']);
         $this->actingAs($user);
 
         Animal::create([
@@ -29,164 +56,187 @@ class CustomerModulesTest extends TestCase
             'nome' => 'Clinica Teste',
             'cidade' => 'Sao Paulo',
             'uf' => 'SP',
-            'telemedicina' => true,
+            'status' => 'approved',
+            'approved_at' => now(),
         ]);
 
         foreach ([
             route('dashboard'),
             route('animais.index'),
             route('animais.create'),
-            route('consultas.index'),
-            route('consultas.create'),
             route('atendimentos.index'),
             route('atendimentos.create'),
             route('vacinas.index'),
             route('clinicas.index'),
-            route('telemedicina.index'),
-            route('chat'),
         ] as $url) {
             $this->get($url)->assertOk();
         }
+
+        $this->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Atendimentos')
+            ->assertDontSee('Telemedicina')
+            ->assertDontSee('Proximas consultas');
+
+        $this->get(route('consultas.index'))->assertRedirect(route('atendimentos.index'));
+        $this->get(route('consultas.create'))->assertRedirect(route('atendimentos.create'));
+        $this->get(route('telemedicina.index'))->assertRedirect(route('atendimentos.index'));
     }
 
-    public function test_detail_pages_render_for_owned_records(): void
+    public function test_clinic_approval_visibility_and_pending_changes(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $admin = User::factory()->create(['tipo' => 'admin']);
+        $clinicUser = User::factory()->create(['tipo' => 'clinic']);
+        $tutor = User::factory()->create(['tipo' => 'tutor']);
 
-        $animal = Animal::create([
-            'id_usuario' => $user->id,
-            'nome' => 'Bento',
-            'especie' => 'Cao',
-            'porte' => 'medio',
-        ]);
-
-        $clinica = Clinica::create([
-            'nome' => 'Clinica Detalhe',
+        $this->actingAs($clinicUser)->post(route('clinicas.profile.update'), [
+            'nome' => 'Clinica Pendente',
+            'tipo' => 'Clinica veterinaria',
+            'telefone' => '(11) 3333-4444',
+            'email' => 'publico@clinica.test',
             'cidade' => 'Sao Paulo',
             'uf' => 'SP',
-            'telemedicina' => true,
+            'descricao' => 'Primeira versao',
+        ])->assertRedirect(route('clinicas.profile'));
+
+        $clinica = Clinica::firstOrFail();
+        $this->assertSame('pending', $clinica->status);
+
+        $this->actingAs($tutor)->get(route('clinicas.index'))
+            ->assertOk()
+            ->assertDontSee('Clinica Pendente');
+
+        $this->actingAs($admin)->post(route('admin.clinicas.approve', $clinica))
+            ->assertRedirect(route('admin.clinicas.index'));
+
+        $this->assertDatabaseHas('clinicas', [
+            'nome' => 'Clinica Pendente',
+            'status' => 'approved',
         ]);
 
-        $consulta = Consulta::create([
-            'user_id' => $user->id,
-            'animal_id' => $animal->id,
-            'clinica_id' => $clinica->id,
-            'tipo' => 'online',
-            'data' => now()->addDay()->toDateString(),
-            'hora' => '11:00',
-            'status' => 'agendada',
-            'sala_url' => route('telemedicina.sala', 1),
+        $this->actingAs($tutor)->get(route('clinicas.index'))
+            ->assertOk()
+            ->assertSee('Clinica Pendente');
+
+        $this->actingAs($clinicUser)->post(route('clinicas.profile.update'), [
+            'nome' => 'Clinica Nova',
+            'tipo' => 'Hospital veterinario',
+            'telefone' => '(11) 5555-6666',
+            'email' => 'novo@clinica.test',
+            'cidade' => 'Campinas',
+            'uf' => 'SP',
+            'descricao' => 'Versao pendente',
+        ])->assertRedirect(route('clinicas.profile'));
+
+        $clinica->refresh();
+        $this->assertSame('Clinica Pendente', $clinica->nome);
+        $this->assertSame('Clinica Nova', $clinica->pending_changes['nome']);
+
+        $this->actingAs($tutor)->get(route('clinicas.index'))
+            ->assertOk()
+            ->assertSee('Clinica Pendente')
+            ->assertDontSee('Clinica Nova');
+
+        $this->actingAs($admin)->post(route('admin.clinicas.approve', $clinica))
+            ->assertRedirect(route('admin.clinicas.index'));
+
+        $this->assertDatabaseHas('clinicas', [
+            'nome' => 'Clinica Nova',
+            'status' => 'approved',
+            'pending_changes' => null,
         ]);
-
-        $consulta->update(['sala_url' => route('telemedicina.sala', $consulta->id)]);
-
-        foreach ([
-            route('animais.show', $animal),
-            route('animais.edit', $animal),
-            route('clinicas.show', $clinica),
-            route('consultas.show', $consulta),
-            route('telemedicina.sala', $consulta),
-        ] as $url) {
-            $this->get($url)->assertOk();
-        }
     }
 
-    public function test_animal_crud_is_limited_to_authenticated_user(): void
+    public function test_vet_queue_accept_refuse_chat_and_finish_flow(): void
     {
-        $user = User::factory()->create();
-        $other = User::factory()->create();
-        $this->actingAs($user);
+        Storage::fake('public');
 
-        $this->post(route('animais.store'), [
-            'nome' => 'Thor',
-            'especie' => 'Cao',
-            'raca' => 'SRD',
-            'porte' => 'medio',
-            'cor' => 'Caramelo',
-        ])->assertRedirect(route('animais.index'));
-
-        $animal = Animal::where('id_usuario', $user->id)->firstOrFail();
-        $this->assertDatabaseHas('animais', ['id' => $animal->id, 'nome' => 'Thor']);
-
-        $this->put(route('animais.update', $animal), [
-            'nome' => 'Thor Junior',
-            'especie' => 'Cao',
-            'porte' => 'grande',
-        ])->assertRedirect(route('animais.index'));
-
-        $this->assertDatabaseHas('animais', ['id' => $animal->id, 'nome' => 'Thor Junior']);
-
-        $otherAnimal = Animal::create([
-            'id_usuario' => $other->id,
-            'nome' => 'Nina',
-            'especie' => 'Gato',
-            'porte' => 'pequeno',
+        $tutor = User::factory()->create([
+            'tipo' => 'tutor',
+            'cidade' => 'Sao Paulo',
+            'uf' => 'SP',
         ]);
-
-        $this->get(route('animais.show', $otherAnimal))->assertNotFound();
-
-        $this->delete(route('animais.destroy', $animal))->assertRedirect(route('animais.index'));
-        $this->assertDatabaseMissing('animais', ['id' => $animal->id]);
-    }
-
-    public function test_vaccines_consultations_atendimentos_telemedicine_and_chat_persist(): void
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $vetOne = User::factory()->create(['tipo' => 'vet']);
+        $vetTwo = User::factory()->create(['tipo' => 'vet']);
 
         $animal = Animal::create([
-            'id_usuario' => $user->id,
+            'id_usuario' => $tutor->id,
             'nome' => 'Mel',
             'especie' => 'Cao',
             'porte' => 'pequeno',
         ]);
 
-        $clinica = Clinica::create([
-            'nome' => 'Vet Online',
-            'cidade' => 'Online',
-            'uf' => 'BR',
-            'telemedicina' => true,
+        $this->actingAs($tutor)->post(route('atendimentos.store'), [
+            'animal_id' => $animal->id,
+            'modo' => 'video',
+            'descricao' => 'Esta tossindo desde ontem',
+        ])->assertRedirect();
+
+        $atendimento = Atendimento::firstOrFail();
+        $this->assertSame('aguardando', $atendimento->status);
+
+        $this->actingAs($vetOne)->post(route('vet.disponibilidade'), [
+            'disponivel_atendimento' => 1,
+        ])->assertRedirect(route('vet.atendimentos.index'));
+
+        $this->get(route('vet.atendimentos.index'))
+            ->assertOk()
+            ->assertSee('Mel')
+            ->assertSee('Esta tossindo desde ontem');
+
+        $this->post(route('atendimentos.refuse', $atendimento))
+            ->assertRedirect(route('vet.atendimentos.index'));
+
+        $atendimento->refresh();
+        $this->assertContains($vetOne->id, $atendimento->recusado_por);
+
+        $this->get(route('vet.atendimentos.index'))
+            ->assertOk()
+            ->assertDontSee('Mel');
+
+        $this->actingAs($vetTwo)->post(route('vet.disponibilidade'), [
+            'disponivel_atendimento' => 1,
+        ])->assertRedirect(route('vet.atendimentos.index'));
+
+        $this->post(route('atendimentos.accept', $atendimento))
+            ->assertRedirect(route('atendimentos.show', $atendimento));
+
+        $atendimento->refresh();
+        $this->assertSame('em_atendimento', $atendimento->status);
+        $this->assertSame($vetTwo->id, $atendimento->veterinario_id);
+
+        $this->actingAs($tutor)->post(route('atendimentos.messages', $atendimento), [
+            'mensagem' => 'Ele esta respirando normal agora',
+        ])->assertRedirect(route('atendimentos.show', $atendimento).'#chat');
+
+        $this->actingAs($vetTwo)->post(route('atendimentos.messages', $atendimento), [
+            'mensagem' => 'Vou orientar os proximos passos',
+        ])->assertRedirect(route('atendimentos.show', $atendimento).'#chat');
+
+        $this->assertDatabaseHas('messages', [
+            'atendimento_id' => $atendimento->id,
+            'mensagem' => 'Vou orientar os proximos passos',
         ]);
 
-        $this->post(route('vacinas.store'), [
-            'animal_id' => $animal->id,
-            'nome' => 'Antirrabica',
-            'data_aplicacao' => now()->toDateString(),
-            'proxima_dose' => now()->addYear()->toDateString(),
-        ])->assertRedirect(route('vacinas.index'));
+        $file = UploadedFile::fake()->create('receita.pdf', 20, 'application/pdf');
 
-        $this->post(route('consultas.store'), [
-            'animal_id' => $animal->id,
-            'clinica_id' => $clinica->id,
-            'tipo' => 'presencial',
-            'data' => now()->addDay()->toDateString(),
-            'hora' => '10:00',
-        ])->assertRedirect(route('consultas.index'));
+        $this->actingAs($vetTwo)->post(route('atendimentos.finish', $atendimento), [
+            'video_url' => 'https://meet.google.com/teste-vet',
+            'descricao_observado' => 'Quadro leve, sem sinais de urgencia.',
+            'anotacoes' => 'Observar por 24 horas.',
+            'receita' => $file,
+        ])->assertRedirect(route('atendimentos.show', $atendimento));
 
-        $this->post(route('atendimentos.store'), [
-            'animal_id' => $animal->id,
-            'data' => now()->toDateString(),
-            'descricao' => 'Check-up',
-            'valor' => 150,
-            'status' => 'atendido',
-        ])->assertRedirect(route('atendimentos.index'));
+        $atendimento->refresh();
+        $this->assertSame('finalizado', $atendimento->status);
+        $this->assertNotNull($atendimento->receita_path);
+        Storage::disk('public')->assertExists($atendimento->receita_path);
 
-        $this->post(route('telemedicina.store'), [
-            'animal_id' => $animal->id,
-            'clinica_id' => $clinica->id,
-            'data' => now()->addDays(2)->toDateString(),
-            'hora' => '14:30',
-        ])->assertRedirect(route('telemedicina.index'));
+        $this->actingAs($tutor)->get(route('atendimentos.show', $atendimento))
+            ->assertOk()
+            ->assertSee('Quadro leve, sem sinais de urgencia.')
+            ->assertSee('Observar por 24 horas.');
 
-        $this->post(route('chat.send'), [
-            'mensagem' => 'Preciso de ajuda',
-        ])->assertRedirect(route('chat'));
-
-        $this->assertDatabaseHas('vacinas', ['animal_id' => $animal->id, 'nome' => 'Antirrabica']);
-        $this->assertDatabaseHas('consultas', ['animal_id' => $animal->id, 'tipo' => 'presencial']);
-        $this->assertDatabaseHas('consultas', ['animal_id' => $animal->id, 'tipo' => 'online']);
-        $this->assertDatabaseHas('atendimentos', ['animal_id' => $animal->id, 'status' => 'atendido']);
-        $this->assertDatabaseHas('messages', ['user_id' => $user->id, 'mensagem' => 'Preciso de ajuda']);
+        $this->assertSame(2, Message::where('atendimento_id', $atendimento->id)->count());
     }
 }

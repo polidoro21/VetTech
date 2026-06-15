@@ -32,6 +32,7 @@ class User extends Authenticatable
         'bairro',
         'cidade',
         'uf',
+        'disponivel_atendimento',
     ];
 
     /**
@@ -54,6 +55,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'disponivel_atendimento' => 'boolean',
         ];
     }
 
@@ -65,6 +67,21 @@ class User extends Authenticatable
     public function consultas()
     {
         return $this->hasMany(Consulta::class);
+    }
+
+    public function clinica()
+    {
+        return $this->hasOne(Clinica::class);
+    }
+
+    public function atendimentos()
+    {
+        return $this->hasMany(Atendimento::class);
+    }
+
+    public function atendimentosVeterinario()
+    {
+        return $this->hasMany(Atendimento::class, 'veterinario_id');
     }
 
     public function messages()

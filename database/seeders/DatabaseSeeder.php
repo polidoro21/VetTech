@@ -27,6 +27,15 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        User::updateOrCreate(
+            ['email' => 'admin@vettech.test'],
+            [
+                'name' => 'Administrador VetTech',
+                'password' => bcrypt('password'),
+                'tipo' => 'admin',
+            ]
+        );
+
         collect([
             [
                 'nome' => 'VetTech Centro Clinico',
@@ -45,6 +54,8 @@ class DatabaseSeeder extends Seeder
                 'horario_abertura' => '08:00',
                 'descricao' => 'Atendimento clinico, vacinas e exames de rotina.',
                 'telemedicina' => true,
+                'status' => 'approved',
+                'approved_at' => now(),
             ],
             [
                 'nome' => 'Pet Care 24h',
@@ -63,10 +74,12 @@ class DatabaseSeeder extends Seeder
                 'horario_abertura' => '24h',
                 'descricao' => 'Emergencia, internacao e cirurgias.',
                 'telemedicina' => false,
+                'status' => 'approved',
+                'approved_at' => now(),
             ],
             [
                 'nome' => 'Clinica Amigo Pet Online',
-                'tipo' => 'Telemedicina veterinaria',
+                'tipo' => 'Atendimento veterinario remoto',
                 'telefone' => '1144445555',
                 'email' => 'online@amigopet.test',
                 'cidade' => 'Online',
@@ -75,8 +88,10 @@ class DatabaseSeeder extends Seeder
                 'nota' => 4.9,
                 'aberta_agora' => true,
                 'horario_abertura' => '24h online',
-                'descricao' => 'Consultas online para orientacao inicial e retorno.',
+                'descricao' => 'Atendimento remoto para orientacao inicial e retorno.',
                 'telemedicina' => true,
+                'status' => 'approved',
+                'approved_at' => now(),
             ],
         ])->each(fn (array $clinica) => Clinica::updateOrCreate(
             ['nome' => $clinica['nome']],
